@@ -158,8 +158,19 @@
       // --- Lógica de carga principal ---
       const params = new URLSearchParams(window.location.search);
       if (params.has('url')) {
-        // Si se comparte un enlace, se abre directamente el modal.
-        manejarEnlaceCompartido();
+        // Si se comparte un enlace, se abre directamente el modal y se rellenan los campos.
+        const sharedUrl = params.get('url');
+        const sharedTitle = params.get('title');
+        const sharedText = params.get('text');
+
+        abrirModalAñadir().then(() => {
+          document.getElementById('modalUrl').value = sharedUrl;
+          if (sharedTitle) {
+            document.getElementById('modalDescripcion').value = sharedTitle;
+          } else if (sharedText && sharedText !== sharedUrl) {
+            document.getElementById('modalDescripcion').value = sharedText;
+          }
+        });
       } else {
         // Si no, se carga la lista de enlaces normal.
         cargarEnlaces();
@@ -386,30 +397,6 @@
 
     function cerrarConfirmacion() {
       location.reload();
-    }
-
-    /**
-     * Función para gestionar los datos compartidos por la PWA.
-     * Se ejecutará cuando la PWA se abra a través de una acción de "Compartir".
-     */
-    function manejarEnlaceCompartido() {
-      const params = new URLSearchParams(window.location.search);
-      const sharedUrl = params.get('url');
-      const sharedTitle = params.get('title');
-      const sharedText = params.get('text');
-
-      if (sharedUrl) {
-        // Si se comparte un enlace, abrir el modal directamente
-        abrirModalAñadir().then(() => {
-          document.getElementById('modalUrl').value = sharedUrl;
-          // Intenta pre-rellenar la descripción con el título o texto compartido
-          if (sharedTitle) {
-            document.getElementById('modalDescripcion').value = sharedTitle;
-          } else if (sharedText && sharedText !== sharedUrl) {
-            document.getElementById('modalDescripcion').value = sharedText;
-          }
-        });
-      }
     }
 
   </script>
