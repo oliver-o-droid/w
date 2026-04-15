@@ -2,7 +2,7 @@
   "name": "Gestor de Enlaces",
   "short_name": "Enlaces",
   "description": "Una aplicación para guardar y organizar tus enlaces importantes.",
-  "start_url": ".",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#115e59",
