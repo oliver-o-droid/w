@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#115e59">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
   <title>Gestor de Enlaces (Externo)</title>
 
   <!-- Estilos adaptados de web-reserva.html -->
@@ -159,6 +163,17 @@
 
       // Comprobar si se ha compartido un enlace al cargar la página
       manejarEnlaceCompartido();
+
+      // Registrar el Service Worker para la PWA
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registrado con éxito:', registration);
+          })
+          .catch(error => {
+            console.log('Error al registrar el Service Worker:', error);
+          });
+      }
     });
 
     /**
