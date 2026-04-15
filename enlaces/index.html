@@ -141,28 +141,29 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbxl5Uz3eM0E6mRBok5Qh5G5T9KHoy6y_avntD1jRIqSGxBYlYU9KT8rLnw8yDyyx9LjUw/exec';
 
     document.addEventListener('DOMContentLoaded', function() {
-      cargarEnlaces();
-
-      // Listeners para el modal de añadir
+      // Listeners de los botones y modales
       document.getElementById('btnAbrirModalAñadir').addEventListener('click', abrirModalAñadir);
       document.getElementById('btnCancelarAñadir').addEventListener('click', cerrarModalAñadir);
       document.getElementById('btnConfirmarAñadir').addEventListener('click', confirmarAñadir);
-
-      // Cerrar modales al hacer clic fuera
       window.addEventListener('click', function(event) {
         if (event.target.classList.contains('modal')) {
           event.target.classList.remove('activo');
         }
       });
-
-      // Listener para el select de encabezados
       document.getElementById('modalEncabezado').addEventListener('change', function() {
         const esNuevo = this.value === 'nuevo';
         document.getElementById('grupoNuevoEncabezado').style.display = esNuevo ? 'flex' : 'none';
       });
 
-      // Comprobar si se ha compartido un enlace al cargar la página
-      manejarEnlaceCompartido();
+      // --- Lógica de carga principal ---
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('url')) {
+        // Si se comparte un enlace, se abre directamente el modal.
+        manejarEnlaceCompartido();
+      } else {
+        // Si no, se carga la lista de enlaces normal.
+        cargarEnlaces();
+      }
 
       // Registrar el Service Worker para la PWA
       if ('serviceWorker' in navigator) {
