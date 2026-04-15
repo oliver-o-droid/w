@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Enlaces (Externo)</title>
+
+  <!-- Estilos adaptados de web-reserva.html -->
+  <style>
+    :root {
+      --color-1: #e1e3e1;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; padding: 20px; color: #333; }
+    .contenedor-principal { max-width: 800px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    .encabezado { background: linear-gradient(135deg, #115e59 0%, #0f766e 100%); color: white; padding: 40px 20px; text-align: center; }
+    .encabezado h1 { font-size: 2em; margin-bottom: 10px; font-weight: 700; }
+    .encabezado p { font-size: 1.1em; opacity: 0.95; }
+    .contenido { padding: 30px 20px; }
+    .contenedor-enlaces { display: flex; flex-direction: column; gap: 20px; }
+    .enlace-encabezado { font-size: 1.3em; font-weight: 700; color: #05302c; margin-top: 20px; margin-bottom: 10px; padding: 15px; background: #cec3ff; border-left: 5px solid #686969; border-radius: 4px; }
+    .enlace-card { padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; background-color: #ffffff; }
+    .enlace-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); border-color: #0f766e; }
+    .enlace-info { flex: 1; min-width: 200px; }
+    .enlace-descripcion { font-weight: 600; color: #333; font-size: 1.1em; }
+    button, .btn-enlace { padding: 11px 22px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; display: inline-block; text-align: center; }
+    button:hover:not(:disabled), .btn-enlace:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+    .btn-enlace { background-color: #558374; color: white; flex: 0 1 auto; min-width: 140px; }
+    .btn-enlace:hover { background-color: #059669; }
+    .btn-primary { background-color: #0f766e; color: white; width: 100%; padding: 14px; font-size: 1em; }
+    .btn-primary:hover { background-color: #115e59; }
+    .btn-secondary { background-color: #9ca3af; color: white; }
+    .btn-secondary:hover { background-color: #6b7280; }
+    .btn-flotante { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: #0f766e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); z-index: 999; }
+    .btn-flotante:hover { background-color: #115e59; transform: translateY(-2px) scale(1.05); }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal.activo { display: flex; align-items: center; justify-content: center; }
+    .modal-contenido { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); max-width: 500px; width: 90%; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-encabezado { font-size: 1.5em; font-weight: 700; margin-bottom: 20px; color: #333; }
+    .modal-formulario { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
+    .grupo-campo { display: flex; flex-direction: column; }
+    label { font-weight: 600; margin-bottom: 6px; color: #333; font-size: 0.95em; }
+    input[type="text"], input[type="url"], select { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; transition: border-color 0.3s, box-shadow 0.3s; font-family: inherit; }
+    input[type="text"]:focus, input[type="url"]:focus, select:focus { outline: none; border-color: #0f766e; box-shadow: 0 0 8px rgba(15, 118, 110, 0.2); }
+    .modal-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .mensaje-confirmacion { padding: 20px; border-radius: 8px; text-align: center; }
+    .mensaje-exito { background-color: #d1fae5; border: 2px solid #10b981; color: #065f46; }
+    .mensaje-error { background-color: #fee2e2; border: 2px solid #ef4444; color: #7f1d1d; }
+    .mensaje-titulo { font-weight: 700; font-size: 1.1em; margin-bottom: 8px; }
+    .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid #0f766e; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .cargando-overlay { text-align: center; padding: 40px; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .contenedor-principal { border-radius: 0; }
+      .encabezado { padding: 30px 15px; }
+      .encabezado h1 { font-size: 1.5em; }
+      .contenido { padding: 20px 15px; }
+      .enlace-card { flex-direction: column; align-items: stretch; }
+      .btn-enlace { width: 100%; margin-top: 15px; }
+      .btn-flotante { bottom: 20px; right: 20px; }
+      .modal-botones { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <style>
+    .enlace-card { background-color: var(--color-1); } /* Color personalizado */
+  </style>
+
+  <div class="contenedor-principal">
+    <!-- Encabezado -->
+    <div class="encabezado">
+      <h1>Gestor de Enlaces</h1>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="contenido">
+      <div class="contenedor-enlaces" id="contenedorEnlaces">
+        <!-- Overlay de carga inicial -->
+        <div class="cargando-overlay" id="cargando">
+          <div class="spinner"></div>
+          <p style="margin-top: 15px; color: #666;">Cargando enlaces...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón flotante para añadir URL -->
+  <button class="btn-flotante" id="btnAbrirModalAñadir" title="Añadir nuevo enlace">+</button>
+
+  <!-- Modal para Añadir URL -->
+  <div id="modalAñadir" class="modal">
+    <div class="modal-contenido">
+      <div class="modal-encabezado">Añadir Nuevo Enlace</div>
+      <div class="modal-formulario">
+        <div class="grupo-campo">
+          <label for="modalBoton">Texto del botón</label>
+          <input type="text" id="modalBoton" placeholder="Ej: Google, Mi Portfolio...">
+        </div>
+        <div class="grupo-campo">
+          <label for="modalDescripcion">Descripción</label>
+          <input type="text" id="modalDescripcion" placeholder="Una breve descripción del enlace">
+        </div>
+        <div class="grupo-campo">
+          <label for="modalUrl">URL</label>
+          <input type="url" id="modalUrl" placeholder="https://www.ejemplo.com">
+        </div>
+        <div class="grupo-campo">
+          <label for="modalEncabezado">Categoría (Encabezado)</label>
+          <select id="modalEncabezado"></select>
+        </div>
+        <div class="grupo-campo" id="grupoNuevoEncabezado" style="display: none;">
+          <label for="modalNuevoEncabezado">Texto del nuevo encabezado</label>
+          <input type="text" id="modalNuevoEncabezado" placeholder="Ej: Redes Sociales">
+        </div>
+      </div>
+      <div class="modal-botones">
+        <button class="btn-secondary" id="btnCancelarAñadir">Cancelar</button>
+        <button class="btn-primary" id="btnConfirmarAñadir">Guardar Enlace</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación/Error -->
+  <div id="modalConfirmacion" class="modal">
+    <div class="modal-contenido" id="contenidoConfirmacion">
+      <!-- Contenido dinámico -->
+    </div>
+  </div>
+
+  <script>
+    // URL de la API de Google Apps Script
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxl5Uz3eM0E6mRBok5Qh5G5T9KHoy6y_avntD1jRIqSGxBYlYU9KT8rLnw8yDyyx9LjUw/exec';
+
+    document.addEventListener('DOMContentLoaded', function() {
+      cargarEnlaces();
+
+      // Listeners para el modal de añadir
+      document.getElementById('btnAbrirModalAñadir').addEventListener('click', abrirModalAñadir);
+      document.getElementById('btnCancelarAñadir').addEventListener('click', cerrarModalAñadir);
+      document.getElementById('btnConfirmarAñadir').addEventListener('click', confirmarAñadir);
+
+      // Cerrar modales al hacer clic fuera
+      window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+          event.target.classList.remove('activo');
+        }
+      });
+
+      // Listener para el select de encabezados
+      document.getElementById('modalEncabezado').addEventListener('change', function() {
+        const esNuevo = this.value === 'nuevo';
+        document.getElementById('grupoNuevoEncabezado').style.display = esNuevo ? 'flex' : 'none';
+      });
+
+      // Comprobar si se ha compartido un enlace al cargar la página
+      manejarEnlaceCompartido();
+    });
+
+    /**
+     * Llama al backend para obtener los enlaces y los renderiza.
+     */
+    async function cargarEnlaces() {
+      document.getElementById('cargando').style.display = 'block';
+      try {
+        const response = await fetch(`${API_URL}?accion=getUrls`);
+        const result = await response.json();
+        if (result.status === 'ok') {
+          renderizarEnlaces(result.data);
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (error) {
+        mostrarError(error);
+      }
+    }
+
+    /**
+     * Renderiza los enlaces y encabezados en el contenedor principal.
+     * @param {Array<Object>} datos - El array de enlaces y encabezados del backend.
+     */
+    function renderizarEnlaces(datos) {
+      const contenedor = document.getElementById('contenedorEnlaces');
+      contenedor.innerHTML = ''; // Limpiar contenedor
+
+      if (!datos || datos.length === 0) {
+        contenedor.innerHTML = '<p style="text-align:center; color:#666;">No hay enlaces para mostrar. ¡Añade el primero!</p>';
+        return;
+      }
+
+      datos.forEach(item => {
+        if (item.tipo === 'encabezado') {
+          const div = document.createElement('div');
+          div.className = 'enlace-encabezado';
+          div.textContent = item.titulo;
+          contenedor.appendChild(div);
+        } else if (item.tipo === 'enlace') {
+          const card = crearCardEnlace(item);
+          contenedor.appendChild(card);
+        }
+      });
+    }
+
+    /**
+     * Crea el elemento HTML para una tarjeta de enlace.
+     * @param {Object} enlace - El objeto de enlace.
+     * @returns {HTMLElement} El elemento div de la tarjeta.
+     */
+    function crearCardEnlace(enlace) {
+      const card = document.createElement('div');
+      card.className = 'enlace-card';
+
+      const info = document.createElement('div');
+      info.className = 'enlace-info';
+      info.innerHTML = `
+        <div class="enlace-descripcion">${enlace.descripcion || 'Sin descripción'}</div>
+      `;
+
+      const linkButton = document.createElement('a');
+      linkButton.className = 'btn-enlace';
+      linkButton.textContent = enlace.boton || 'Ir';
+      linkButton.href = enlace.url;
+      linkButton.target = '_blank'; // Abrir en nueva pestaña
+      linkButton.rel = 'noopener noreferrer';
+
+      card.appendChild(info);
+      card.appendChild(linkButton);
+
+      return card;
+    }
+
+    /**
+     * Muestra un mensaje de error en el contenedor principal.
+     * @param {Error} error - El objeto de error del backend.
+     */
+    function mostrarError(error) {
+      const contenedor = document.getElementById('contenedorEnlaces');
+      contenedor.innerHTML = `
+        <div class="mensaje-confirmacion mensaje-error">
+          <div class="mensaje-titulo">Error</div>
+          <div class="mensaje-texto">${error.message}</div>
+        </div>
+      `;
+    }
+
+    // --- Lógica para el Modal de Añadir ---
+
+    async function abrirModalAñadir() {
+      // Limpiar campos antes de mostrar
+      document.getElementById('modalBoton').value = '';
+      document.getElementById('modalDescripcion').value = '';
+      document.getElementById('modalUrl').value = '';
+      document.getElementById('modalNuevoEncabezado').value = '';
+      document.getElementById('grupoNuevoEncabezado').style.display = 'none';
+
+      // Poblar el desplegable de encabezados
+      const select = document.getElementById('modalEncabezado');
+      select.innerHTML = '<option value="ninguno">Sin categoría</option>'; // Opción por defecto
+      select.disabled = true;
+
+      try {
+        const response = await fetch(`${API_URL}?accion=getHeaders`);
+        const result = await response.json();
+        if (result.status === 'ok') {
+          result.data.forEach(header => {
+            const option = new Option(header, header);
+            select.add(option);
+          });
+          select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
+          select.disabled = false;
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (err) {
+        console.error("Error al cargar encabezados:", err);
+        select.disabled = false; // Habilitar de todos modos
+      }
+
+      document.getElementById('modalAñadir').classList.add('activo');
+      manejarEnlaceCompartido(); // Volver a comprobar por si se abrió con un enlace
+    }
+
+    function cerrarModalAñadir() {
+      document.getElementById('modalAñadir').classList.remove('activo');
+    }
+
+    async function confirmarAñadir() {
+      const boton = document.getElementById('modalBoton').value.trim();
+      const descripcion = document.getElementById('modalDescripcion').value.trim();
+      const url = document.getElementById('modalUrl').value.trim();
+      const selectedHeader = document.getElementById('modalEncabezado').value;
+      const newHeader = document.getElementById('modalNuevoEncabezado').value.trim();
+
+      if (!boton || !url) {
+        alert('El texto del botón y la URL son obligatorios.');
+        return;
+      }
+
+      if (selectedHeader === 'nuevo' && !newHeader) {
+        alert('Por favor, introduce el texto para el nuevo encabezado.');
+        return;
+      }
+
+      // Deshabilitar botón para evitar envíos múltiples
+      const btnConfirmar = document.getElementById('btnConfirmarAñadir');
+      btnConfirmar.disabled = true;
+      btnConfirmar.textContent = 'Guardando...';
+
+      // Construir la URL con los parámetros
+      const params = new URLSearchParams({
+        accion: 'addUrl',
+        boton: boton,
+        descripcion: descripcion,
+        url: url,
+        selectedHeader: selectedHeader,
+        newHeader: newHeader
+      });
+
+      try {
+        const response = await fetch(`${API_URL}?${params.toString()}`);
+        const respuesta = await response.json();
+        
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = 'Guardar Enlace';
+        cerrarModalAñadir();
+        mostrarConfirmacion(respuesta);
+        if (respuesta.exito) {
+          cargarEnlaces(); // Recargar la lista si fue exitoso
+        }
+      } catch (error) {
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = 'Guardar Enlace';
+        mostrarConfirmacion({ exito: false, mensaje: error.message });
+      }
+    }
+
+    /**
+     * Muestra un modal con un mensaje de éxito o error.
+     * @param {Object} respuesta - El objeto de respuesta del backend.
+     */
+    function mostrarConfirmacion(respuesta) {
+      const contenido = document.getElementById('contenidoConfirmacion');
+      const modal = document.getElementById('modalConfirmacion');
+
+      let html = '';
+      if (respuesta.exito) {
+        html = `
+          <div class="mensaje-confirmacion mensaje-exito">
+            <div class="mensaje-titulo">¡Éxito!</div>
+            <div class="mensaje-texto">${respuesta.mensaje}</div>
+          </div>
+        `;
+      } else {
+        html = `
+          <div class="mensaje-confirmacion mensaje-error">
+            <div class="mensaje-titulo">Error</div>
+            <div class="mensaje-texto">${respuesta.mensaje || 'Ocurrió un error desconocido.'}</div>
+          </div>
+        `;
+      }
+
+      html += '<button class="btn-secondary" style="width:100%; margin-top:20px;" onclick="cerrarConfirmacion()">Cerrar</button>';
+
+      contenido.innerHTML = html;
+      modal.classList.add('activo');
+    }
+
+    function cerrarConfirmacion() {
+      document.getElementById('modalConfirmacion').classList.remove('activo');
+    }
+
+    /**
+     * Función para gestionar los datos compartidos por la PWA.
+     * Se ejecutará cuando la PWA se abra a través de una acción de "Compartir".
+     */
+    function manejarEnlaceCompartido() {
+      const params = new URLSearchParams(window.location.search);
+      const sharedUrl = params.get('url');
+      const sharedTitle = params.get('title');
+      const sharedText = params.get('text');
+
+      if (sharedUrl) {
+        // Si se comparte un enlace, abrir el modal directamente
+        abrirModalAñadir().then(() => {
+          document.getElementById('modalUrl').value = sharedUrl;
+          // Intenta pre-rellenar la descripción con el título o texto compartido
+          if (sharedTitle) {
+            document.getElementById('modalDescripcion').value = sharedTitle;
+          } else if (sharedText && sharedText !== sharedUrl) {
+            document.getElementById('modalDescripcion').value = sharedText;
+          }
+        });
+      }
+    }
+
+  </script>
+</body>
+</html>
