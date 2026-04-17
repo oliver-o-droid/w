@@ -140,6 +140,10 @@
     // URL de la API de Google Apps Script
     const API_URL = 'https://script.google.com/macros/s/AKfycbxl5Uz3eM0E6mRBok5Qh5G5T9KHoy6y_avntD1jRIqSGxBYlYU9KT8rLnw8yDyyx9LjUw/exec';
 
+    const contenedorEnlaces = document.getElementById('contenedorEnlaces');
+    const cargandoDiv = document.getElementById('cargando');
+
+
     document.addEventListener('DOMContentLoaded', function() {
       // Listeners de los botones y modales
       document.getElementById('btnAbrirModalAñadir').addEventListener('click', abrirModalAñadir);
@@ -189,20 +193,52 @@
     });
 
     /**
-     * Llama al backend para obtener los enlaces y los renderiza.
+     * Carga los enlaces usando la estrategia "Stale-While-Revalidate".
+     * 1. Muestra datos cacheados (stale) de localStorage si existen.
+     * 2. Pide datos frescos (revalidate) a la API.
+     * 3. Actualiza la UI y el caché cuando llegan los datos frescos.
      */
-    async function cargarEnlaces() {
-      document.getElementById('cargando').style.display = 'block';
+    async function cargarEnlaces() { 
+      // 1. Cargar datos "stale" desde localStorage
+      const cachedData = localStorage.getItem('cachedEnlaces');
+      let seMostroCache = false;
+
+      if (cachedData) {
+        console.log("Mostrando datos desde caché local...");
+        const enlaces = JSON.parse(cachedData);
+        renderizarEnlaces(enlaces);
+        seMostroCache = true;
+      } else {
+        // Si no hay caché, mostramos el spinner principal
+        cargandoDiv.style.display = 'block';
+      }
+
+      // 2. Pedir datos frescos a la red (revalidate)
       try {
+        console.log("Pidiendo datos frescos a la red...");
         const response = await fetch(`${API_URL}?accion=getUrls`);
+        if (!response.ok) {
+          throw new Error(`Error de red: ${response.statusText}`);
+        }
         const result = await response.json();
+
         if (result.status === 'ok') {
+          console.log("Datos frescos recibidos. Actualizando UI y caché.");
+          // 3. Actualizar UI y guardar en localStorage
           renderizarEnlaces(result.data);
+          localStorage.setItem('cachedEnlaces', JSON.stringify(result.data));
         } else {
-          throw new Error(result.message);
+          throw new Error(`Error en la API: ${result.message}`);
         }
       } catch (error) {
-        mostrarError(error);
+        console.error('No se pudieron obtener los datos frescos:', error);
+        // Si falla la red pero no teníamos caché, mostramos un error.
+        if (!seMostroCache) {
+          mostrarError(error);
+        }
+      } finally {
+        // Si el spinner principal estaba visible, lo ocultamos.
+        cargandoDiv.style.display = 'none';
       }
     }
 
@@ -211,11 +247,10 @@
      * @param {Array<Object>} datos - El array de enlaces y encabezados del backend.
      */
     function renderizarEnlaces(datos) {
-      const contenedor = document.getElementById('contenedorEnlaces');
-      contenedor.innerHTML = ''; // Limpiar contenedor
+      contenedorEnlaces.innerHTML = ''; // Limpiar contenedor
 
       if (!datos || datos.length === 0) {
-        contenedor.innerHTML = '<p style="text-align:center; color:#666;">No hay enlaces para mostrar. ¡Añade el primero!</p>';
+        contenedorEnlaces.innerHTML = '<p style="text-align:center; color:#666;">No hay enlaces para mostrar. ¡Añade el primero!</p>';
         return;
       }
 
@@ -224,10 +259,10 @@
           const div = document.createElement('div');
           div.className = 'enlace-encabezado';
           div.textContent = item.titulo;
-          contenedor.appendChild(div);
+          contenedorEnlaces.appendChild(div);
         } else if (item.tipo === 'enlace') {
           const card = crearCardEnlace(item);
-          contenedor.appendChild(card);
+          contenedorEnlaces.appendChild(card);
         }
       });
     }
@@ -265,8 +300,8 @@
      * @param {Error} error - El objeto de error del backend.
      */
     function mostrarError(error) {
-      const contenedor = document.getElementById('contenedorEnlaces');
-      contenedor.innerHTML = `
+      cargandoDiv.style.display = 'none';
+      contenedorEnlaces.innerHTML = `
         <div class="mensaje-confirmacion mensaje-error">
           <div class="mensaje-titulo">Error</div>
           <div class="mensaje-texto">${error.message}</div>
