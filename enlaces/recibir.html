@@ -104,19 +104,21 @@
      * Lee los parámetros de la URL y rellena los campos del formulario.
      */
     function rellenarDesdeParams() {
-      const params = new URLSearchParams(window.location.search);
-      const sharedUrl = params.get('url');
-      const sharedTitle = params.get('title');
-      const sharedText = params.get('text');
+        const params = new URLSearchParams(window.location.search);
+        const pTitle = params.get('title');
+        const pText = params.get('text');
+        const pUrl = params.get('url');
 
-      if (sharedUrl) {
-        document.getElementById('modalUrl').value = sharedUrl;
-      }
-      if (sharedTitle) {
-        document.getElementById('modalDescripcion').value = sharedTitle;
-      } else if (sharedText && sharedText !== sharedUrl) {
-        document.getElementById('modalDescripcion').value = sharedText;
-      }
+        // La URL puede venir en 'url' o en 'text'. Damos prioridad a 'url'.
+        const finalUrl = pUrl || pText || '';
+        document.getElementById('modalUrl').value = finalUrl;
+
+        // La descripción suele ser el 'title'. Si no, puede ser el 'text' (si no es la URL).
+        if (pTitle) {
+            document.getElementById('modalDescripcion').value = pTitle;
+        } else if (pText && pText !== finalUrl) {
+            document.getElementById('modalDescripcion').value = pText;
+        }
     }
 
     /**
