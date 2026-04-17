@@ -1,5 +1,5 @@
 {
-  "name": "Enlaces",
+  "name": "Gestor de Enlaces",
   "short_name": "Enlaces",
   "description": "Una aplicación para guardar y organizar tus enlaces importantes.",
   "start_url": "index.html",
@@ -19,7 +19,7 @@
     }
   ],
   "share_target": {
-    "action": "index.html",
+    "action": "recibir.html",
     "method": "GET",
     "params": {
       "title": "title",
