@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Añadir Enlace</title>
+
+  <!-- Estilos copiados de index.html para consistencia visual -->
+  <style>
+    :root {
+      --color-1: #e1e3e1;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; padding: 20px; color: #333; display: flex; align-items: center; justify-content: center; }
+    .contenedor-formulario { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); max-width: 500px; width: 90%; }
+    .formulario-encabezado { font-size: 1.5em; font-weight: 700; margin-bottom: 20px; color: #333; }
+    .formulario-campos { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
+    .grupo-campo { display: flex; flex-direction: column; }
+    label { font-weight: 600; margin-bottom: 6px; color: #333; font-size: 0.95em; }
+    input[type="text"], input[type="url"], select { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; transition: border-color 0.3s, box-shadow 0.3s; font-family: inherit; }
+    input[type="text"]:focus, input[type="url"]:focus, select:focus { outline: none; border-color: #0f766e; box-shadow: 0 0 8px rgba(15, 118, 110, 0.2); }
+    .formulario-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    button { padding: 11px 22px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; display: inline-block; text-align: center; }
+    button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+    .btn-primary { background-color: #0f766e; color: white; width: 100%; padding: 14px; font-size: 1em; }
+    .btn-primary:hover { background-color: #115e59; }
+    .btn-secondary { background-color: #9ca3af; color: white; }
+    .btn-secondary:hover { background-color: #6b7280; }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px; vertical-align: middle; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @media (max-width: 600px) {
+      .formulario-botones { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="contenedor-formulario">
+    <div class="formulario-encabezado">Añadir Nuevo Enlace</div>
+    <div class="formulario-campos">
+      <div class="grupo-campo">
+        <label for="modalBoton">Texto del botón</label>
+        <input type="text" id="modalBoton" placeholder="Ej: Google, Mi Portfolio...">
+      </div>
+      <div class="grupo-campo">
+        <label for="modalDescripcion">Descripción</label>
+        <input type="text" id="modalDescripcion" placeholder="Una breve descripción del enlace">
+      </div>
+      <div class="grupo-campo">
+        <label for="modalUrl">URL</label>
+        <input type="url" id="modalUrl" placeholder="https://www.ejemplo.com">
+      </div>
+      <div class="grupo-campo">
+        <label for="modalEncabezado">Categoría (Encabezado)</label>
+        <select id="modalEncabezado" disabled>
+          <option>Cargando categorías...</option>
+        </select>
+      </div>
+      <div class="grupo-campo" id="grupoNuevoEncabezado" style="display: none;">
+        <label for="modalNuevoEncabezado">Texto del nuevo encabezado</label>
+        <input type="text" id="modalNuevoEncabezado" placeholder="Ej: Redes Sociales">
+      </div>
+    </div>
+    <div class="formulario-botones">
+      <button class="btn-secondary" id="btnCancelar">Cancelar</button>
+      <button class="btn-primary" id="btnConfirmar">Guardar Enlace</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxl5Uz3eM0E6mRBok5Qh5G5T9KHoy6y_avntD1jRIqSGxBYlYU9KT8rLnw8yDyyx9LjUw/exec';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Rellenar el formulario con los datos compartidos
+      rellenarDesdeParams();
+      
+      // Cargar las categorías (encabezados)
+      poblarEncabezados();
+
+      // Asignar eventos a los botones
+      document.getElementById('btnCancelar').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+      document.getElementById('btnConfirmar').addEventListener('click', confirmarAñadir);
+
+      // Mostrar/ocultar campo de nuevo encabezado
+      document.getElementById('modalEncabezado').addEventListener('change', function() {
+        const esNuevo = this.value === 'nuevo';
+        document.getElementById('grupoNuevoEncabezado').style.display = esNuevo ? 'flex' : 'none';
+      });
+    });
+
+    /**
+     * Lee los parámetros de la URL y rellena los campos del formulario.
+     */
+    function rellenarDesdeParams() {
+      const params = new URLSearchParams(window.location.search);
+      const sharedUrl = params.get('url');
+      const sharedTitle = params.get('title');
+      const sharedText = params.get('text');
+
+      if (sharedUrl) {
+        document.getElementById('modalUrl').value = sharedUrl;
+      }
+      if (sharedTitle) {
+        document.getElementById('modalDescripcion').value = sharedTitle;
+      } else if (sharedText && sharedText !== sharedUrl) {
+        document.getElementById('modalDescripcion').value = sharedText;
+      }
+    }
+
+    /**
+     * Obtiene la lista de encabezados desde la API y los añade al <select>.
+     */
+    async function poblarEncabezados() {
+      const select = document.getElementById('modalEncabezado');
+      try {
+        const response = await fetch(`${API_URL}?accion=getHeaders`);
+        const result = await response.json();
+        
+        select.innerHTML = ''; // Limpiar "Cargando..."
+        if (result.status === 'ok') {
+          result.data.forEach(header => {
+            const option = new Option(header, header);
+            select.add(option);
+          });
+        }
+        // Añadir siempre la opción de crear uno nuevo
+        select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
+        select.disabled = false;
+
+      } catch (err) {
+        console.error("Error al cargar encabezados:", err);
+        select.innerHTML = '<option value="">No se pudieron cargar</option>';
+        select.disabled = false;
+      }
+    }
+
+    /**
+     * Recoge los datos del formulario y los envía a la API para guardarlos.
+     */
+    async function confirmarAñadir() {
+      const boton = document.getElementById('modalBoton').value.trim();
+      const descripcion = document.getElementById('modalDescripcion').value.trim();
+      const url = document.getElementById('modalUrl').value.trim();
+      const selectedHeader = document.getElementById('modalEncabezado').value;
+      const newHeader = document.getElementById('modalNuevoEncabezado').value.trim();
+
+      if (!boton || !url) {
+        alert('El texto del botón y la URL son obligatorios.');
+        return;
+      }
+
+      if (selectedHeader === 'nuevo' && !newHeader) {
+        alert('Por favor, introduce el texto para el nuevo encabezado.');
+        return;
+      }
+
+      const btnConfirmar = document.getElementById('btnConfirmar');
+      btnConfirmar.disabled = true;
+      btnConfirmar.innerHTML = 'Guardando... <span class="spinner"></span>';
+
+      const params = new URLSearchParams({
+        accion: 'addUrl',
+        boton: boton,
+        descripcion: descripcion,
+        url: url,
+        selectedHeader: selectedHeader,
+        newHeader: newHeader
+      });
+
+      try {
+        const response = await fetch(`${API_URL}?${params.toString()}`);
+        const respuesta = await response.json();
+        
+        if (respuesta.exito) {
+          // Limpiar el caché de datos para que index.html recargue los nuevos
+          localStorage.removeItem('cachedEnlaces');
+          alert('¡Enlace guardado con éxito!');
+        } else {
+          throw new Error(respuesta.mensaje || 'Ocurrió un error desconocido.');
+        }
+      } catch (error) {
+        alert(`Error al guardar el enlace: ${error.message}`);
+      } finally {
+        // Pase lo que pase, redirigir a index.html
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+
+</body>
+</html>
