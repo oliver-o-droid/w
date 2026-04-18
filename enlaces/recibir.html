@@ -62,8 +62,8 @@
       </div>
     </div>
     <div class="formulario-botones">
-      <button class="btn-secondary" id="btnCancelar">Cancelar</button>
-      <button class="btn-primary" id="btnConfirmar">Guardar Enlace</button>
+      <button class="btn-secondary" id="btnAnalizar">Analizar</button>
+      <button class="btn-primary" id="btnConfirmar">Guardar</button>
     </div>
   </div>
 
@@ -78,8 +78,18 @@
       poblarEncabezados();
 
       // Asignar eventos a los botones
-      document.getElementById('btnCancelar').addEventListener('click', () => {
-        window.location.href = 'index.html';
+      document.getElementById('btnAnalizar').addEventListener('click', () => {
+        const params = new URLSearchParams(window.location.search);
+        let analysisResult = "Análisis de parámetros recibidos:\n\n";
+        analysisResult += `URL Completa:\n${window.location.href}\n\n`;
+        analysisResult += "Parámetros (clave=valor):\n";
+
+        if (Array.from(params.entries()).length === 0) {
+            analysisResult += "No se encontraron parámetros en la URL.";
+        } else {
+            analysisResult += window.location.search.substring(1);
+        }
+        alert(analysisResult);
       });
       document.getElementById('btnConfirmar').addEventListener('click', confirmarAñadir);
 
@@ -114,17 +124,9 @@
       if (sharedUrl) {
         document.getElementById('modalUrl').value = sharedUrl;
       }
-
-      // Lógica general para descripción
       if (sharedTitle) {
-        if (sharedTitle.length > MAX_DESC_LENGTH) {
-          sharedTitle = sharedTitle.substring(0, MAX_DESC_LENGTH) + '...';
-        }
         document.getElementById('modalDescripcion').value = sharedTitle;
       } else if (sharedText && sharedText !== sharedUrl) {
-        if (sharedText.length > MAX_DESC_LENGTH) {
-          sharedText = sharedText.substring(0, MAX_DESC_LENGTH) + '...';
-        }
         document.getElementById('modalDescripcion').value = sharedText;
       }
     }
@@ -189,7 +191,7 @@
       }
 
       const btnConfirmar = document.getElementById('btnConfirmar');
-      btnConfirmar.disabled = true;
+      btnConfirmar.disabled = true; 
       btnConfirmar.innerHTML = 'Guardando... <span class="spinner"></span>';
 
       const params = new URLSearchParams({
