@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
 
-  <title>Enlaces</title>
+  <title>Gestor de Enlaces (Externo)</title>
 
   <!-- Estilos adaptados de web-reserva.html -->
   <style>
@@ -23,6 +23,11 @@
     .contenido { padding: 30px 20px; }
     .contenedor-enlaces { display: flex; flex-direction: column; gap: 20px; }
     .enlace-encabezado { font-size: 1.3em; font-weight: 700; color: #05302c; margin-top: 20px; margin-bottom: 10px; padding: 15px; background: #cec3ff; border-left: 5px solid #686969; border-radius: 4px; }
+    .enlace-encabezado.desplegable { cursor: pointer; user-select: none; position: relative; }
+    .enlace-encabezado.desplegable::after { content: '▶'; font-size: 0.7em; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); transition: transform 0.2s; }
+    .enlace-encabezado.desplegable.abierto::after { transform: translateY(-50%) rotate(90deg); }
+    .grupo-tarjetas { display: none; flex-direction: column; gap: 20px; }
+    .grupo-tarjetas.abierto { display: flex; }
     .enlace-card { padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; background-color: #ffffff; }
     .enlace-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); border-color: #0f766e; }
     .enlace-info { flex: 1; min-width: 200px; }
@@ -254,15 +259,30 @@
         return;
       }
 
+      let grupoTarjetasActual = null;
+
       datos.forEach(item => {
         if (item.tipo === 'encabezado') {
+          // Crear un nuevo contenedor para las tarjetas de este grupo
+          grupoTarjetasActual = document.createElement('div');
+          grupoTarjetasActual.className = 'grupo-tarjetas';
+
           const div = document.createElement('div');
-          div.className = 'enlace-encabezado';
+          div.className = 'enlace-encabezado desplegable';
           div.textContent = item.titulo;
+          div.onclick = () => {
+            div.classList.toggle('abierto');
+            grupoTarjetasActual.classList.toggle('abierto');
+          };
+
           contenedorEnlaces.appendChild(div);
+          contenedorEnlaces.appendChild(grupoTarjetasActual);
+
         } else if (item.tipo === 'enlace') {
           const card = crearCardEnlace(item);
-          contenedorEnlaces.appendChild(card);
+          // Añadir la tarjeta al grupo actual o directamente al contenedor si no hay encabezado
+          const contenedorPadre = grupoTarjetasActual || contenedorEnlaces;
+          contenedorPadre.appendChild(card);
         }
       });
     }
@@ -334,6 +354,12 @@
           });
           select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
           select.disabled = false;
+          
+          // Establecer "Otros" como valor por defecto si existe
+          const existeOtros = Array.from(select.options).some(opt => opt.value === 'Otros');
+          if (existeOtros) {
+            select.value = 'Otros';
+          }
         } else {
           throw new Error(result.message);
         }
