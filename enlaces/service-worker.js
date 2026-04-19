@@ -1,4 +1,4 @@
-const CACHE_NAME = 'enlaces-cache-v2'; // Incrementamos la versión del caché
+const CACHE_NAME = 'enlaces-cache-v3'; // Forzar actualización del manifest
 const urlsToCache = [
   '/',
   'index.html',
