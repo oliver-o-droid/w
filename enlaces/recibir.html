@@ -110,35 +110,26 @@
       const sharedText = params.get('text') || '';
       const MAX_DESC_LENGTH = 38;
 
-      // --- LÓGICA INTELIGENTE PARA PROCESAR DATOS ---
+      // Lógica para Spotify (listas compartidas)
+      const spotifyRegex = /Escucha esta lista: (.*?)\s+(https?:\/\/\S+)/;
+      const spotifyMatch = sharedText.match(spotifyRegex);
 
-      if (sharedUrl) {
-        // CASO 1: Enlace genérico con URL (compartido desde Chrome, etc.)
+      if (spotifyMatch) {
+        let playlistName = spotifyMatch[1];
+        if (playlistName.length > MAX_DESC_LENGTH) {
+          playlistName = playlistName.substring(0, MAX_DESC_LENGTH) + '...';
+        }
+        document.getElementById('modalDescripcion').value = playlistName;
+        document.getElementById('modalUrl').value = spotifyMatch[2];
+        document.getElementById('modalBoton').value = 'Escuchar';
+      } else {
+        // Lógica general para cualquier otro enlace (Chrome, etc.)
         document.getElementById('modalUrl').value = sharedUrl;
         let description = sharedTitle || (sharedText !== sharedUrl ? sharedText : '');
         if (description.length > MAX_DESC_LENGTH) {
           description = description.substring(0, MAX_DESC_LENGTH) + '...';
         }
         document.getElementById('modalDescripcion').value = description;
-      } else if (sharedText) {
-        // Si no hay URL, procesamos el texto (casos de Spotify)
-        const spotifyPlaylistRegex = /Escucha esta lista: (.*?) (https:\/\/open\.spotify\.com\/\S+)/;
-        const playlistMatch = sharedText.match(spotifyPlaylistRegex);
-        if (playlistMatch) {
-          // CASO 2: Lista de reproducción de Spotify (compartida por otro)
-          let playlistName = playlistMatch[1];
-          if (playlistName.length > MAX_DESC_LENGTH) {
-            playlistName = playlistName.substring(0, MAX_DESC_LENGTH) + '...';
-          }
-          document.getElementById('modalDescripcion').value = playlistName;
-          document.getElementById('modalUrl').value = playlistMatch[2];
-          document.getElementById('modalBoton').value = 'Escuchar';
-        } else if (sharedText.includes('open.spotify.com')) {
-          // CASO 3: Otro enlace de Spotify (canción, lista propia, etc.)
-          document.getElementById('modalUrl').value = sharedText;
-          document.getElementById('modalBoton').value = 'Escuchar';
-          // La descripción se deja vacía para que el usuario la rellene.
-        }
       }
     }
 
