@@ -124,7 +124,9 @@
         document.getElementById('modalBoton').value = 'Escuchar';
       } else {
         // Lógica general para cualquier otro enlace (Chrome, etc.)
-        document.getElementById('modalUrl').value = sharedUrl;
+        // Si 'url' está vacío pero 'text' no, es probable que venga de Chrome donde 'text' contiene la URL.
+        document.getElementById('modalUrl').value = sharedUrl || sharedText;
+        // La descripción es el título, o el texto si es diferente a la URL.
         let description = sharedTitle || (sharedText !== sharedUrl ? sharedText : '');
         if (description.length > MAX_DESC_LENGTH) {
           description = description.substring(0, MAX_DESC_LENGTH) + '...';
