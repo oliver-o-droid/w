@@ -110,23 +110,24 @@
       const sharedText = params.get('text') || '';
       const MAX_DESC_LENGTH = 38;
 
-      // Lógica para Spotify (listas compartidas)
+      // CASO 1: Lista de Spotify compartida ("Escucha esta lista...")
       const spotifyRegex = /Escucha esta lista: (.*?)\s+(https?:\/\/\S+)/;
       const spotifyMatch = sharedText.match(spotifyRegex);
 
       if (spotifyMatch) {
-        let playlistName = spotifyMatch[1];
-        if (playlistName.length > MAX_DESC_LENGTH) {
-          playlistName = playlistName.substring(0, MAX_DESC_LENGTH) + '...';
-        }
-        document.getElementById('modalDescripcion').value = playlistName;
+        document.getElementById('modalDescripcion').value = spotifyMatch[1].substring(0, MAX_DESC_LENGTH);
         document.getElementById('modalUrl').value = spotifyMatch[2];
         document.getElementById('modalBoton').value = 'Escuchar';
+      } else if (sharedText.includes('open.spotify.com')) {
+        // CASO 2: Otro tipo de enlace de Spotify (canción, lista propia, etc.)
+        document.getElementById('modalUrl').value = sharedText;
+        document.getElementById('modalDescripcion').value = ''; // Descripción en blanco
+        document.getElementById('modalBoton').value = 'Escuchar';
       } else {
-        // Lógica general para cualquier otro enlace (Chrome, etc.)
+        // CASO 3: Lógica general para cualquier otro enlace (Chrome, etc.)
         // Si 'url' está vacío pero 'text' no, es probable que venga de Chrome donde 'text' contiene la URL.
         document.getElementById('modalUrl').value = sharedUrl || sharedText;
-        // La descripción es el título, o el texto si es diferente a la URL.
+        // La descripción es el título.
         let description = sharedTitle || (sharedText !== sharedUrl ? sharedText : '');
         if (description.length > MAX_DESC_LENGTH) {
           description = description.substring(0, MAX_DESC_LENGTH) + '...';
