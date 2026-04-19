@@ -110,36 +110,38 @@
       let sharedText = params.get('text');
       const MAX_DESC_LENGTH = 38;
 
-      // Lógica para Spotify
-      const spotifyRegex = /Escucha esta lista: (.*?)\s+(https?:\/\/\S+)/;
-      if (sharedText && spotifyRegex.test(sharedText)) {
-        const match = sharedText.match(spotifyRegex);
-        // Truncar el nombre de la lista de Spotify si es necesario
-        if (match[1].length > MAX_DESC_LENGTH) {
-          match[1] = match[1].substring(0, MAX_DESC_LENGTH) + '...';
+      // Lógica inteligente para procesar los datos recibidos
+      if (sharedText && sharedText.includes('open.spotify.com')) {
+        // --- CASO SPOTIFY ---
+        const spotifyPlaylistRegex = /Escucha esta lista: (.*) (https:\/\/open\.spotify\.com\/.*)/;
+        const match = sharedText.match(spotifyPlaylistRegex);
+
+        if (match) {
+          // Es una lista de reproducción compartida ("Escucha esta lista...")
+          let playlistName = match[1];
+          if (playlistName.length > MAX_DESC_LENGTH) {
+            playlistName = playlistName.substring(0, MAX_DESC_LENGTH) + '...';
+          }
+          document.getElementById('modalDescripcion').value = playlistName;
+          document.getElementById('modalUrl').value = match[2];
+        } else {
+          // Es un enlace directo de Spotify (canción, álbum, etc.)
+          document.getElementById('modalUrl').value = sharedText;
+          // La descripción se deja vacía para que el usuario la rellene
         }
-        document.getElementById('modalDescripcion').value = match[1];
-        document.getElementById('modalUrl').value = match[2];
         document.getElementById('modalBoton').value = 'Escuchar';
-        // Dejamos que poblarEncabezados se encargue de seleccionar "Música"
-        return; // Salimos para no aplicar la lógica general
-      }
+        // La categoría "Música" se seleccionará en poblarEncabezados()
 
-      if (sharedUrl) {
-        document.getElementById('modalUrl').value = sharedUrl;
-      }
+      } else {
+        // --- CASO GENERAL (Cualquier otra app) ---
+        document.getElementById('modalUrl').value = sharedUrl || '';
 
-      // Lógica general para descripción, con truncamiento
-      if (sharedTitle) {
-        if (sharedTitle.length > MAX_DESC_LENGTH) {
-          sharedTitle = sharedTitle.substring(0, MAX_DESC_LENGTH) + '...';
+        let description = sharedTitle || '';
+        // Truncar la descripción si excede el límite
+        if (description.length > MAX_DESC_LENGTH) {
+          description = description.substring(0, MAX_DESC_LENGTH) + '...';
         }
-        document.getElementById('modalDescripcion').value = sharedTitle;
-      } else if (sharedText && sharedText !== sharedUrl) {
-        if (sharedText.length > MAX_DESC_LENGTH) {
-          sharedText = sharedText.substring(0, MAX_DESC_LENGTH) + '...';
-        }
-        document.getElementById('modalDescripcion').value = sharedText;
+        document.getElementById('modalDescripcion').value = description;
       }
     }
 
@@ -173,7 +175,11 @@
         const esSpotify = document.getElementById('modalBoton').value === 'Escuchar';
         const categoriaPorDefecto = esSpotify ? 'Música' : 'Otros';
         
-        select.value = categoriaPorDefecto;
+        // Seleccionar la categoría por defecto, asegurándose de que exista en la lista
+        const existeCategoria = Array.from(select.options).some(opt => opt.value === categoriaPorDefecto);
+        if (existeCategoria) {
+          select.value = categoriaPorDefecto;
+        }
 
       } catch (err) {
         console.error("Error al cargar encabezados:", err);
