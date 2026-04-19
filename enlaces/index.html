@@ -266,10 +266,11 @@
           // Crear un nuevo contenedor para las tarjetas de este grupo
           grupoTarjetasActual = document.createElement('div');
           grupoTarjetasActual.className = 'grupo-tarjetas';
-
+          
           const div = document.createElement('div');
           div.className = 'enlace-encabezado desplegable';
           div.textContent = item.titulo;
+
           div.onclick = () => {
             div.classList.toggle('abierto');
             grupoTarjetasActual.classList.toggle('abierto');
