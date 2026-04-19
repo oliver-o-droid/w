@@ -144,28 +144,22 @@
         const response = await fetch(`${API_URL}?accion=getHeaders`);
         const result = await response.json();
         
-        select.innerHTML = ''; // Limpiar "Cargando..."
         if (result.status === 'ok') {
-          // Añadir "Otros" primero si no viene de la API para asegurar que existe
-          if (!result.data.includes('Otros')) {
-            select.add(new Option('Otros', 'Otros'));
-          }
+          select.innerHTML = ''; // Limpiar "Cargando..."
           result.data.forEach(header => {
-            if (header !== 'Otros') { // Evitar duplicados
-              const option = new Option(header, header);
-              select.add(option);
-            }
+            select.add(new Option(header, header));
           });
         }
-        // Añadir siempre la opción de crear uno nuevo
-        select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
-        select.disabled = false;
 
         // Lógica de selección por defecto
         const esSpotify = document.getElementById('modalBoton').value === 'Escuchar';
         const categoriaPorDefecto = esSpotify ? 'Música' : 'Otros';
         
-        // Seleccionar la categoría por defecto, asegurándose de que exista en la lista
+        // Añadir siempre la opción de crear uno nuevo
+        select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
+        select.disabled = false;
+        
+        // Seleccionar la categoría por defecto, asegurándose de que exista
         const existeCategoria = Array.from(select.options).some(opt => opt.value === categoriaPorDefecto);
         if (existeCategoria) {
           select.value = categoriaPorDefecto;
