@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
 
-  <title>Gestor de Enlaces (Externo)</title>
+  <title>11Enlaces</title>
 
   <!-- Estilos adaptados de web-reserva.html -->
   <style>
@@ -83,7 +83,7 @@
   <div class="contenedor-principal">
     <!-- Encabezado -->
     <div class="encabezado">
-      <h1>Gestor de Enlaces</h1>
+      <h1>11Enlaces</h1>
     </div>
 
     <!-- Contenido principal -->
@@ -263,21 +263,22 @@
 
       datos.forEach(item => {
         if (item.tipo === 'encabezado') {
-          // Crear un nuevo contenedor para las tarjetas de este grupo
-          grupoTarjetasActual = document.createElement('div');
-          grupoTarjetasActual.className = 'grupo-tarjetas';
-          
           const div = document.createElement('div');
           div.className = 'enlace-encabezado desplegable';
           div.textContent = item.titulo;
 
+          // Creamos el grupo de tarjetas para ESTE encabezado
+          const grupoDeEsteEncabezado = document.createElement('div');
+          grupoDeEsteEncabezado.className = 'grupo-tarjetas';
+
           div.onclick = () => {
             div.classList.toggle('abierto');
-            grupoTarjetasActual.classList.toggle('abierto');
+            grupoDeEsteEncabezado.classList.toggle('abierto');
           };
 
           contenedorEnlaces.appendChild(div);
-          contenedorEnlaces.appendChild(grupoTarjetasActual);
+          contenedorEnlaces.appendChild(grupoDeEsteEncabezado);
+          grupoTarjetasActual = grupoDeEsteEncabezado; // Actualizamos la referencia para los siguientes enlaces
 
         } else if (item.tipo === 'enlace') {
           const card = crearCardEnlace(item);

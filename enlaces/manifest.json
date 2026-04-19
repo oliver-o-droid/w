@@ -1,6 +1,6 @@
 {
-  "name": "Gestor de Enlaces",
-  "short_name": "Enlaces",
+  "name": "11Enlaces",
+  "short_name": "11Enlaces",
   "description": "Una aplicación para guardar y organizar tus enlaces importantes.",
   "start_url": "index.html",
   "display": "standalone",

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Añadir Enlace</title>
+  <title>11Enlaces - Añadir</title>
 
   <!-- Estilos copiados de index.html para consistencia visual -->
   <style>
@@ -104,16 +104,20 @@
      * Lee los parámetros de la URL y rellena los campos del formulario.
      */
     function rellenarDesdeParams() {
-      const MAX_DESC_LENGTH = 38;
       const params = new URLSearchParams(window.location.search);
       const sharedUrl = params.get('url');
       let sharedTitle = params.get('title');
       let sharedText = params.get('text');
+      const MAX_DESC_LENGTH = 38;
 
       // Lógica para Spotify
       const spotifyRegex = /Escucha esta lista: (.*?)\s+(https?:\/\/\S+)/;
       if (sharedText && spotifyRegex.test(sharedText)) {
         const match = sharedText.match(spotifyRegex);
+        // Truncar el nombre de la lista de Spotify si es necesario
+        if (match[1].length > MAX_DESC_LENGTH) {
+          match[1] = match[1].substring(0, MAX_DESC_LENGTH) + '...';
+        }
         document.getElementById('modalDescripcion').value = match[1];
         document.getElementById('modalUrl').value = match[2];
         document.getElementById('modalBoton').value = 'Escuchar';
@@ -124,9 +128,17 @@
       if (sharedUrl) {
         document.getElementById('modalUrl').value = sharedUrl;
       }
+
+      // Lógica general para descripción, con truncamiento
       if (sharedTitle) {
+        if (sharedTitle.length > MAX_DESC_LENGTH) {
+          sharedTitle = sharedTitle.substring(0, MAX_DESC_LENGTH) + '...';
+        }
         document.getElementById('modalDescripcion').value = sharedTitle;
       } else if (sharedText && sharedText !== sharedUrl) {
+        if (sharedText.length > MAX_DESC_LENGTH) {
+          sharedText = sharedText.substring(0, MAX_DESC_LENGTH) + '...';
+        }
         document.getElementById('modalDescripcion').value = sharedText;
       }
     }
