@@ -104,45 +104,42 @@
      * Lee los parámetros de la URL y rellena los campos del formulario.
      */
     function rellenarDesdeParams() {
-      const params = new URLSearchParams(window.location.search);
-      const sharedUrl = params.get('url');
-      let sharedTitle = params.get('title');
-      let sharedText = params.get('text');
       const MAX_DESC_LENGTH = 38;
+      const params = new URLSearchParams(window.location.search);
+      const sharedUrl = params.get('url') || '';
+      let sharedTitle = params.get('title') || '';
+      let sharedText = params.get('text') || '';
 
-      // Lógica inteligente para procesar los datos recibidos
-      if (sharedText && sharedText.includes('open.spotify.com')) {
-        // --- CASO SPOTIFY ---
-        const spotifyPlaylistRegex = /Escucha esta lista: (.*) (https:\/\/open\.spotify\.com\/.*)/;
-        const match = sharedText.match(spotifyPlaylistRegex);
+      // --- LÓGICA INTELIGENTE PARA PROCESAR DATOS ---
 
-        if (match) {
-          // Es una lista de reproducción compartida ("Escucha esta lista...")
-          let playlistName = match[1];
-          if (playlistName.length > MAX_DESC_LENGTH) {
-            playlistName = playlistName.substring(0, MAX_DESC_LENGTH) + '...';
-          }
-          document.getElementById('modalDescripcion').value = playlistName;
-          document.getElementById('modalUrl').value = match[2];
-        } else {
-          // Es un enlace directo de Spotify (canción, álbum, etc.)
-          document.getElementById('modalUrl').value = sharedText;
-          // La descripción se deja vacía para que el usuario la rellene
+      // CASO 1: Lista de reproducción de Spotify (formato "Escucha esta lista...")
+      const spotifyPlaylistRegex = /Escucha esta lista: (.*?) (https:\/\/open\.spotify\.com\/\S+)/;
+      const playlistMatch = sharedText.match(spotifyPlaylistRegex);
+      if (playlistMatch) {
+        let playlistName = playlistMatch[1];
+        if (playlistName.length > MAX_DESC_LENGTH) {
+          playlistName = playlistName.substring(0, MAX_DESC_LENGTH) + '...';
         }
+        document.getElementById('modalDescripcion').value = playlistName;
+        document.getElementById('modalUrl').value = playlistMatch[2];
         document.getElementById('modalBoton').value = 'Escuchar';
-        // La categoría "Música" se seleccionará en poblarEncabezados()
-
-      } else {
-        // --- CASO GENERAL (Cualquier otra app) ---
-        document.getElementById('modalUrl').value = sharedUrl || '';
-
-        let description = sharedTitle || '';
-        // Truncar la descripción si excede el límite
-        if (description.length > MAX_DESC_LENGTH) {
-          description = description.substring(0, MAX_DESC_LENGTH) + '...';
-        }
-        document.getElementById('modalDescripcion').value = description;
+        return; // Fin del procesamiento
       }
+
+      // CASO 2: Enlace directo de Spotify (canción, álbum, lista propia)
+      if (sharedText.includes('open.spotify.com')) {
+        document.getElementById('modalUrl').value = sharedText;
+        document.getElementById('modalBoton').value = 'Escuchar';
+        // La descripción se deja vacía para que el usuario la rellene.
+        return; // Fin del procesamiento
+      }
+
+      // CASO 3: Enlace genérico de cualquier otra app
+      document.getElementById('modalUrl').value = sharedUrl;
+      if (sharedTitle.length > MAX_DESC_LENGTH) {
+        sharedTitle = sharedTitle.substring(0, MAX_DESC_LENGTH) + '...';
+      }
+      document.getElementById('modalDescripcion').value = sharedTitle;
     }
 
     /**
