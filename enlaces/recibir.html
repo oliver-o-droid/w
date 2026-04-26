@@ -110,24 +110,55 @@
       const sharedText = params.get('text') || '';
       const MAX_DESC_LENGTH = 38;
 
-      // CASO 1: Lista de Spotify compartida ("Escucha esta lista...")
+      // --- LÓGICA INTELIGENTE PARA PROCESAR DATOS ---
+
+      // 1. Wikiloc
+      const wikilocRegex = /¡Mira esta ruta de @Wikiloc! (https:\/\/loc\.wiki\/\S+) \((.*?)\)/;
+      const wikilocMatch = sharedText.match(wikilocRegex);
+      if (wikilocMatch) {
+        document.getElementById('modalUrl').value = wikilocMatch[1];
+        document.getElementById('modalDescripcion').value = wikilocMatch[2].substring(0, MAX_DESC_LENGTH);
+        document.getElementById('modalBoton').value = '🧭Wikiloc';
+        return;
+      }
+
+      // 2. Google Maps
+      if (sharedText.includes('maps.app.goo.gl')) {
+        document.getElementById('modalUrl').value = sharedText;
+        document.getElementById('modalDescripcion').value = sharedTitle.substring(0, MAX_DESC_LENGTH);
+        document.getElementById('modalBoton').value = '🗺️Maps';
+        return;
+      }
+
+      // 3. Gemini
+      if (sharedText.includes('g.co/gemini/share/')) {
+        document.getElementById('modalUrl').value = sharedText;
+        document.getElementById('modalDescripcion').value = '';
+        document.getElementById('modalBoton').value = '✨Gemini';
+        return;
+      }
+
+      // 4. Spotify (Lista compartida)
       const spotifyRegex = /Escucha esta lista: (.*?)\s+(https?:\/\/\S+)/;
       const spotifyMatch = sharedText.match(spotifyRegex);
-
       if (spotifyMatch) {
         document.getElementById('modalDescripcion').value = spotifyMatch[1].substring(0, MAX_DESC_LENGTH);
         document.getElementById('modalUrl').value = spotifyMatch[2];
-        document.getElementById('modalBoton').value = 'Escuchar';
-      } else if (sharedText.includes('open.spotify.com')) {
-        // CASO 2: Otro tipo de enlace de Spotify (canción, lista propia, etc.)
+        document.getElementById('modalBoton').value = '🎵Escuchar';
+        return;
+      }
+      
+      // 5. Spotify (Otro)
+      if (sharedText.includes('open.spotify.com')) {
         document.getElementById('modalUrl').value = sharedText;
         document.getElementById('modalDescripcion').value = ''; // Descripción en blanco
-        document.getElementById('modalBoton').value = 'Escuchar';
-      } else {
-        // CASO 3: Lógica general para cualquier otro enlace (Chrome, etc.)
-        // Si 'url' está vacío pero 'text' no, es probable que venga de Chrome donde 'text' contiene la URL.
+        document.getElementById('modalBoton').value = '🎵Escuchar';
+        return;
+      }
+      
+      // 6. Caso General (Chrome, etc.)
+      if (sharedUrl || sharedText) {
         document.getElementById('modalUrl').value = sharedUrl || sharedText;
-        // La descripción es el título.
         let description = sharedTitle || (sharedText !== sharedUrl ? sharedText : '');
         if (description.length > MAX_DESC_LENGTH) {
           description = description.substring(0, MAX_DESC_LENGTH) + '...';
@@ -153,8 +184,19 @@
         }
 
         // Lógica de selección por defecto
-        const esSpotify = document.getElementById('modalBoton').value === 'Escuchar';
-        const categoriaPorDefecto = esSpotify ? 'Música' : 'Otros';
+        const botonTexto = document.getElementById('modalBoton').value;
+        const urlTexto = document.getElementById('modalUrl').value;
+        let categoriaPorDefecto = 'Otros'; // Valor por defecto
+
+        if (botonTexto.includes('🎵')) {
+          categoriaPorDefecto = 'Música';
+        } else if (botonTexto.includes('🧭') || botonTexto.includes('🗺️')) {
+          categoriaPorDefecto = 'Lugares';
+        } else if (botonTexto.includes('✨')) {
+          categoriaPorDefecto = 'Conversaciones IA';
+        } else if (urlTexto.includes('educacion.navarra.es')) {
+          categoriaPorDefecto = 'Trabajo';
+        }
         
         // Añadir siempre la opción de crear uno nuevo
         select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
