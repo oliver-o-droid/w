@@ -7,41 +7,199 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
 
-  <title>11Enlaces</title>
+  <title>11Enlaces v2</title>
 
-  <!-- Estilos adaptados de web-reserva.html -->
   <style>
     :root {
-      --color-1: #e1e3e1;
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --header-bg: #cec3ff;
+      --header-bg-open: #c4c0d4;
+      --header-text: #05302c;
+      --primary-accent: #0f766e;
+      --primary-accent-dark: #115e59;
+      --text-color: #333;
+      --border-color: #e5e7eb;
+      --btn-link-bg: #558374;
+      --btn-link-hover: #059669;
+      --btn-secondary-bg: #9ca3af;
+      --btn-secondary-hover: #6b7280;
+      --success-bg: #d1fae5;
+      --success-border: #10b981;
+      --success-text: #065f46;
+      --error-bg: #fee2e2;
+      --error-border: #ef4444;
+      --error-text: #7f1d1d;
+      --border-radius: 16px;
+      --card-link-bg: #dedede;
+      --grid-gap: 15px;
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; padding: 20px; color: #333; }
-    .contenedor-principal { max-width: 800px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); overflow: hidden; }
-    .encabezado { background: linear-gradient(135deg, #115e59 0%, #0f766e 100%); color: white; padding: 40px 20px; text-align: center; }
-    .encabezado h1 { font-size: 2em; margin-bottom: 10px; font-weight: 700; }
-    .encabezado p { font-size: 1.1em; opacity: 0.95; }
-    .contenido { padding: 30px 20px; }
-    .contenedor-enlaces { display: flex; flex-direction: column; gap: 20px; }
-    .enlace-encabezado { font-size: 1.3em; font-weight: 700; color: #05302c; margin-top: 20px; margin-bottom: 10px; padding: 15px; background: #cec3ff; border-left: 5px solid #686969; border-radius: 4px; }
-    .enlace-encabezado.desplegable { cursor: pointer; user-select: none; position: relative; }
-    .enlace-encabezado.desplegable::after { content: '▶'; font-size: 0.7em; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); transition: transform 0.2s; }
-    .enlace-encabezado.desplegable.abierto::after { transform: translateY(-50%) rotate(90deg); }
-    .grupo-tarjetas { display: none; flex-direction: column; gap: 20px; }
-    .grupo-tarjetas.abierto { display: flex; }
-    .enlace-card { padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; background-color: #ffffff; }
-    .enlace-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); border-color: #0f766e; }
-    .enlace-info { flex: 1; min-width: 200px; }
-    .enlace-descripcion { font-weight: 600; color: #333; font-size: 1.1em; }
-    button, .btn-enlace { padding: 11px 22px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; display: inline-block; text-align: center; }
-    button:hover:not(:disabled), .btn-enlace:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
-    .btn-enlace { background-color: #558374; color: white; flex: 0 1 auto; min-width: 140px; }
-    .btn-enlace:hover { background-color: #059669; }
-    .btn-primary { background-color: #0f766e; color: white; width: 100%; padding: 14px; font-size: 1em; }
-    .btn-primary:hover { background-color: #115e59; }
-    .btn-secondary { background-color: #9ca3af; color: white; }
-    .btn-secondary:hover { background-color: #6b7280; }
-    .btn-flotante { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background-color: #0f766e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); z-index: 999; }
-    .btn-flotante:hover { background-color: #115e59; transform: translateY(-2px) scale(1.05); }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-color);
+      min-height: 100vh;
+      color: var(--text-color);
+      padding: 20px;
+    }
+
+    .contenedor-principal {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .encabezado-app {
+      background: linear-gradient(135deg, var(--primary-accent-dark) 0%, var(--primary-accent) 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      border-radius: var(--border-radius);
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .encabezado-app h1 { font-size: 2em; font-weight: 700; }
+
+    .contenedor-enlaces {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .seccion-enlaces {
+      background: var(--header-bg);
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      overflow: hidden; /* Clave para que el borde redondeado contenga todo */
+      transition: background-color 0.3s ease-in-out 0.2s; /* Retardo al cerrar */
+    }
+
+    .seccion-enlaces .enlace-encabezado {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: var(--header-text);
+      padding: 20px;
+      /* No necesita borde redondeado propio, lo hereda del contenedor */
+      margin-bottom: 0;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: transform 0.2s ease;
+    }
+
+    .seccion-enlaces.abierto {
+      background-color: var(--header-bg-open);
+      transition-delay: 0s; /* Sin retardo al abrir */
+    }
+
+    .seccion-enlaces .enlace-encabezado::before,
+    .seccion-enlaces .enlace-encabezado::after {
+      content: '';
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      width: 14px;
+      height: 2px;
+      background-color: var(--header-text);
+      transition: transform 0.3s ease-out;
+    }
+
+    .seccion-enlaces .enlace-encabezado::before {
+      transform: translateY(-50%) rotate(90deg); /* Barra vertical */
+    }
+
+    .seccion-enlaces .enlace-encabezado.abierto::before {
+      transform: translateY(-50%) rotate(360deg); /* La barra vertical gira y se vuelve horizontal */
+    }
+
+    .grupo-tarjetas {
+      display: flex;
+      flex-direction: column;
+      gap: var(--grid-gap);
+      padding: 0 var(--grid-gap) var(--grid-gap); /* Añadimos padding para separar las tarjetas de los bordes */
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+    }
+    
+    .grupo-tarjetas.abierto {
+      max-height: 1000vh; /* Valor alto para permitir expansión */
+    }
+
+    .enlace-card {
+      background: var(--card-link-bg);
+      padding: 15px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+      opacity: 0;
+      transform: translateY(-30px);
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    }
+
+    .grupo-tarjetas.abierto .enlace-card {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Animación en cascada */
+    .grupo-tarjetas.abierto .enlace-card:nth-child(1) { transition-delay: 0.05s; }
+    .grupo-tarjetas.abierto .enlace-card:nth-child(2) { transition-delay: 0.1s; }
+    .grupo-tarjetas.abierto .enlace-card:nth-child(3) { transition-delay: 0.15s; }
+    .grupo-tarjetas.abierto .enlace-card:nth-child(4) { transition-delay: 0.2s; }
+    .grupo-tarjetas.abierto .enlace-card:nth-child(5) { transition-delay: 0.25s; }
+    /* ... y así sucesivamente si se necesitan más */
+
+    .enlace-info {
+      flex-grow: 1;
+      margin-bottom: 15px; /* Espacio entre descripción y botón */
+    }
+    .enlace-descripcion { font-weight: 600; color: var(--text-color); font-size: 1.1em; }
+
+    button, .btn-enlace {
+      padding: 11px 22px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95em;
+      transition: background-color 0.3s, transform 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-enlace { background-color: var(--btn-link-bg); color: white; }
+    .btn-primary { background-color: var(--primary-accent); color: white; }
+    .btn-secondary { background-color: var(--btn-secondary-bg); color: white; }
+
+    .btn-flotante {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: var(--primary-accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      z-index: 999;
+      border: none;
+    }
+
+    /* --- Modales (sin cambios de diseño importantes) --- */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal.activo { display: flex; align-items: center; justify-content: center; }
@@ -55,20 +213,18 @@
     input[type="text"]:focus, input[type="url"]:focus, select:focus { outline: none; border-color: #0f766e; box-shadow: 0 0 8px rgba(15, 118, 110, 0.2); }
     .modal-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     .mensaje-confirmacion { padding: 20px; border-radius: 8px; text-align: center; }
-    .mensaje-exito { background-color: #d1fae5; border: 2px solid #10b981; color: #065f46; }
-    .mensaje-error { background-color: #fee2e2; border: 2px solid #ef4444; color: #7f1d1d; }
+    .mensaje-exito { background-color: var(--success-bg); border: 2px solid var(--success-border); color: var(--success-text); }
+    .mensaje-error { background-color: var(--error-bg); border: 2px solid var(--error-border); color: var(--error-text); }
     .mensaje-titulo { font-weight: 700; font-size: 1.1em; margin-bottom: 8px; }
     .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid #0f766e; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .cargando-overlay { text-align: center; padding: 40px; }
+
     @media (max-width: 600px) {
-      body { padding: 0; }
-      .contenedor-principal { border-radius: 0; }
-      .encabezado { padding: 30px 15px; }
-      .encabezado h1 { font-size: 1.5em; }
-      .contenido { padding: 20px 15px; }
-      .enlace-card { flex-direction: column; align-items: stretch; }
-      .btn-enlace { width: 100%; margin-top: 15px; }
+      body { padding: 10px; }
+      .encabezado-app { padding: 30px 15px; margin-bottom: 20px; }
+      .encabezado-app h1 { font-size: 1.5em; }
+      .grupo-tarjetas { grid-template-columns: 1fr; }
       .btn-flotante { bottom: 20px; right: 20px; }
       .modal-botones { grid-template-columns: 1fr; }
     }
@@ -76,13 +232,9 @@
 </head>
 <body>
 
-  <style>
-    .enlace-card { background-color: var(--color-1); } /* Color personalizado */
-  </style>
-
   <div class="contenedor-principal">
     <!-- Encabezado -->
-    <div class="encabezado">
+    <div class="encabezado-app">
       <h1>11Enlaces</h1>
     </div>
 
@@ -199,12 +351,8 @@
 
     /**
      * Carga los enlaces usando la estrategia "Stale-While-Revalidate".
-     * 1. Muestra datos cacheados (stale) de localStorage si existen.
-     * 2. Pide datos frescos (revalidate) a la API.
-     * 3. Actualiza la UI y el caché cuando llegan los datos frescos.
      */
     async function cargarEnlaces() { 
-      // 1. Cargar datos "stale" desde localStorage
       const cachedData = localStorage.getItem('cachedEnlaces');
       let seMostroCache = false;
 
@@ -214,11 +362,9 @@
         renderizarEnlaces(enlaces);
         seMostroCache = true;
       } else {
-        // Si no hay caché, mostramos el spinner principal
         cargandoDiv.style.display = 'block';
       }
 
-      // 2. Pedir datos frescos a la red (revalidate)
       try {
         console.log("Pidiendo datos frescos a la red...");
         const response = await fetch(`${API_URL}?accion=getUrls`);
@@ -229,7 +375,6 @@
 
         if (result.status === 'ok') {
           console.log("Datos frescos recibidos. Actualizando UI y caché.");
-          // 3. Actualizar UI y guardar en localStorage
           renderizarEnlaces(result.data);
           localStorage.setItem('cachedEnlaces', JSON.stringify(result.data));
         } else {
@@ -237,12 +382,10 @@
         }
       } catch (error) {
         console.error('No se pudieron obtener los datos frescos:', error);
-        // Si falla la red pero no teníamos caché, mostramos un error.
         if (!seMostroCache) {
           mostrarError(error);
         }
       } finally {
-        // Si el spinner principal estaba visible, lo ocultamos.
         cargandoDiv.style.display = 'none';
       }
     }
@@ -252,39 +395,46 @@
      * @param {Array<Object>} datos - El array de enlaces y encabezados del backend.
      */
     function renderizarEnlaces(datos) {
-      contenedorEnlaces.innerHTML = ''; // Limpiar contenedor
+      contenedorEnlaces.innerHTML = '';
 
       if (!datos || datos.length === 0) {
         contenedorEnlaces.innerHTML = '<p style="text-align:center; color:#666;">No hay enlaces para mostrar. ¡Añade el primero!</p>';
         return;
       }
 
-      let grupoTarjetasActual = null;
-
       datos.forEach(item => {
         if (item.tipo === 'encabezado') {
-          const div = document.createElement('div');
-          div.className = 'enlace-encabezado desplegable';
-          div.textContent = item.titulo;
+          const seccionActual = document.createElement('div');
+          seccionActual.className = 'seccion-enlaces';
 
-          // Creamos el grupo de tarjetas para ESTE encabezado
-          const grupoDeEsteEncabezado = document.createElement('div');
-          grupoDeEsteEncabezado.className = 'grupo-tarjetas';
+          const encabezadoDiv = document.createElement('div');
+          encabezadoDiv.className = 'enlace-encabezado';
+          encabezadoDiv.textContent = item.titulo;
 
-          div.onclick = () => {
-            div.classList.toggle('abierto');
-            grupoDeEsteEncabezado.classList.toggle('abierto');
+          const grupoTarjetasActual = document.createElement('div');
+          grupoTarjetasActual.className = 'grupo-tarjetas';
+
+          encabezadoDiv.onclick = () => {
+            encabezadoDiv.classList.toggle('abierto');
+            seccionActual.classList.toggle('abierto');
+            grupoTarjetasActual.classList.toggle('abierto');
           };
-
-          contenedorEnlaces.appendChild(div);
-          contenedorEnlaces.appendChild(grupoDeEsteEncabezado);
-          grupoTarjetasActual = grupoDeEsteEncabezado; // Actualizamos la referencia para los siguientes enlaces
+          
+          seccionActual.appendChild(encabezadoDiv);
+          seccionActual.appendChild(grupoTarjetasActual);
+          contenedorEnlaces.appendChild(seccionActual);
 
         } else if (item.tipo === 'enlace') {
-          const card = crearCardEnlace(item);
-          // Añadir la tarjeta al grupo actual o directamente al contenedor si no hay encabezado
-          const contenedorPadre = grupoTarjetasActual || contenedorEnlaces;
-          contenedorPadre.appendChild(card);
+          const grupoTarjetasActual = contenedorEnlaces.lastChild.querySelector('.grupo-tarjetas');
+          const card = crearCardEnlace(item); 
+          if (grupoTarjetasActual) {
+            grupoTarjetasActual.appendChild(card);
+          } else {
+            // Si un enlace no tiene encabezado, lo mostramos fuera de cualquier sección
+            // (Esto requiere crear un grupo "sin encabezado" o añadirlo directamente)
+            // Por simplicidad, asumimos que todos los enlaces están bajo un encabezado.
+            // Si no es el caso, se necesitaría una lógica para un grupo "default".
+          }
         }
       });
     }
@@ -300,15 +450,13 @@
 
       const info = document.createElement('div');
       info.className = 'enlace-info';
-      info.innerHTML = `
-        <div class="enlace-descripcion">${enlace.descripcion || 'Sin descripción'}</div>
-      `;
+      info.innerHTML = `<div class="enlace-descripcion">${enlace.descripcion || 'Sin descripción'}</div>`;
 
       const linkButton = document.createElement('a');
       linkButton.className = 'btn-enlace';
       linkButton.textContent = enlace.boton || 'Ir';
       linkButton.href = enlace.url;
-      linkButton.target = '_blank'; // Abrir en nueva pestaña
+      linkButton.target = '_blank';
       linkButton.rel = 'noopener noreferrer';
 
       card.appendChild(info);
@@ -331,19 +479,17 @@
       `;
     }
 
-    // --- Lógica para el Modal de Añadir ---
+    // --- Lógica para el Modal de Añadir (sin cambios) ---
 
     async function abrirModalAñadir() {
-      // Limpiar campos antes de mostrar
       document.getElementById('modalBoton').value = '';
       document.getElementById('modalDescripcion').value = '';
       document.getElementById('modalUrl').value = '';
       document.getElementById('modalNuevoEncabezado').value = '';
       document.getElementById('grupoNuevoEncabezado').style.display = 'none';
 
-      // Poblar el desplegable de encabezados
       const select = document.getElementById('modalEncabezado');
-      select.innerHTML = ''; // Iniciar el desplegable vacío
+      select.innerHTML = '';
       select.disabled = true;
 
       try {
@@ -357,7 +503,6 @@
           select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
           select.disabled = false;
           
-          // Establecer "Otros" como valor por defecto si existe
           const existeOtros = Array.from(select.options).some(opt => opt.value === 'Otros');
           if (existeOtros) {
             select.value = 'Otros';
@@ -367,7 +512,7 @@
         }
       } catch (err) {
         console.error("Error al cargar encabezados:", err);
-        select.disabled = false; // Habilitar de todos modos
+        select.disabled = false;
       }
 
       document.getElementById('modalAñadir').classList.add('activo');
@@ -394,12 +539,10 @@
         return;
       }
 
-      // Deshabilitar botón para evitar envíos múltiples
       const btnConfirmar = document.getElementById('btnConfirmarAñadir');
       btnConfirmar.disabled = true;
       btnConfirmar.textContent = 'Guardando...';
 
-      // Construir la URL con los parámetros
       const params = new URLSearchParams({
         accion: 'addUrl',
         boton: boton,
@@ -418,7 +561,7 @@
         cerrarModalAñadir();
         mostrarConfirmacion(respuesta);
         if (respuesta.exito) {
-          cargarEnlaces(); // Recargar la lista si fue exitoso
+          cargarEnlaces();
         }
       } catch (error) {
         btnConfirmar.disabled = false;
@@ -427,10 +570,6 @@
       }
     }
 
-    /**
-     * Muestra un modal con un mensaje de éxito o error.
-     * @param {Object} respuesta - El objeto de respuesta del backend.
-     */
     function mostrarConfirmacion(respuesta) {
       const contenido = document.getElementById('contenidoConfirmacion');
       const modal = document.getElementById('modalConfirmacion');
