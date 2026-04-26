@@ -20,18 +20,11 @@
   ],
   "share_target": {
     "action": "recibir.html",
-    "method": "POST",
-    "enctype": "multipart/form-data",
+    "method": "GET",
     "params": {
       "title": "title",
       "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "media",
-          "accept": ["image/*"]
-        }
-      ]
+      "url": "url"
     }
   }
 }
