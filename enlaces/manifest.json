@@ -29,7 +29,7 @@
       "files": [
         {
           "name": "media",
-          "accept": ["image/jpeg", "image/png", "image/gif", "image/webp"]
+          "accept": ["image/*"]
         }
       ]
     }
