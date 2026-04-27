@@ -13,7 +13,7 @@
     :root {
       --bg-color: #f0f2f5;
       --card-bg: #ffffff;
-      --header-bg: #cec3ff;
+      --header-bg: #5B1870;
       --header-bg-open: #c4c0d4;
       --header-text: #05302c;
       --primary-accent: #0f766e;
@@ -31,7 +31,7 @@
       --error-border: #ef4444;
       --error-text: #7f1d1d;
       --border-radius: 16px;
-      --card-link-bg: #dedede;
+      --card-link-bg: #f5f7f6;
       --grid-gap: 15px;
     }
 
@@ -80,18 +80,23 @@
     .seccion-enlaces .enlace-encabezado {
       font-size: 1.3em;
       font-weight: 700;
-      color: var(--header-text);
+      color: white;
       padding: 20px;
       /* No necesita borde redondeado propio, lo hereda del contenedor */
       margin-bottom: 0;
       cursor: pointer;
       user-select: none;
       position: relative;
-      transition: transform 0.2s ease;
+      transition: color 0.3s ease-in-out 0.2s, transform 0.2s ease;
     }
 
     .seccion-enlaces.abierto {
       background-color: var(--header-bg-open);
+      transition-delay: 0s; /* Sin retardo al abrir */
+    }
+
+    .seccion-enlaces.abierto .enlace-encabezado {
+      color: var(--header-text);
       transition-delay: 0s; /* Sin retardo al abrir */
     }
 
@@ -103,7 +108,7 @@
       top: 50%;
       width: 14px;
       height: 2px;
-      background-color: var(--header-text);
+      background-color: currentColor;
       transition: transform 0.3s ease-out;
     }
 
