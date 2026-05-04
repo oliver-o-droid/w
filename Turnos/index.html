@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="title" content="Reserva de Turnos">
+  <title>Reserva de Turnos</title>
+  <base target="_top">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .contenedor-principal {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .encabezado {
+      background: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .encabezado h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .encabezado p {
+      font-size: 1.1em;
+      opacity: 0.95;
+      line-height: 1.6;
+    }
+
+    .contenido {
+      padding: 30px 20px;
+    }
+
+    .seccion {
+      margin-bottom: 40px;
+    }
+
+    .seccion h2 {
+      font-size: 1.5em;
+      color: #333;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .seccion p {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* Formulario de datos personales */
+    .formulario-datos {
+      display: grid;
+      gap: 15px;
+    }
+
+    .grupo-campo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+      font-size: 0.95em;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    select {
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+    }
+
+    /* Contenedor de turnos */
+    .contenedor-turnos {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .turno-encabezado {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #05302c;
+      margin-top: 20px;
+      margin-bottom: 15px;
+      padding: 15px;
+      background: #89aaa72e;
+      border-left: 5px solid #063531;
+      border-radius: 4px;
+    }
+    .turno-encabezado { position: relative; } /* Añadido para posicionar correctamente el info-button */
+
+    .turno-card {
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid #ddd;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .turno-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .turno-card.disponible {
+      background-color: #ecfdf5;
+      border-color: #10b981;
+    }
+
+    .turno-card.bajo {
+      background-color: #fef3c7;
+      border-color: #f59e0b;
+    }
+
+    .turno-card.ocupado {
+      background-color: #f3f4f6;
+      border-color: #d1d5db;
+      opacity: 0.6;
+    }
+
+    .turno-card.sin-puestos {
+      background-color: #fee2e2;
+      border-color: #ef4444;
+    }
+
+    .turno-info {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .turno-dia {
+      font-weight: 600;
+      color: #333;
+      font-size: 1.05em;
+    }
+
+    .turno-detalles {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .turno-disponibles {
+      font-weight: 700;
+      font-size: 1.1em;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .turno-card.disponible .turno-disponibles {
+      color: #10b981;
+    }
+
+    .turno-card.bajo .turno-disponibles {
+      color: #f59e0b;
+    }
+
+    .turno-card.ocupado .turno-disponibles {
+      color: #9ca3af;
+    }
+
+    button {
+      padding: 11px 22px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95em;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .btn-apuntarse {
+      background-color: #10b981;
+      color: white;
+      flex: 0 1 auto;
+      min-width: 140px;
+    }
+
+    .btn-apuntarse:hover:not(:disabled) {
+      background-color: #059669;
+    }
+
+    .btn-apuntarse:disabled {
+      background-color: #d1d5db;
+    }
+
+    .btn-primary {
+      background-color: #0f766e;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 1em;
+    }
+
+    .btn-primary:hover {
+      background-color: #115e59;
+    }
+
+    .btn-secondary {
+      background-color: #9ca3af;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #6b7280;
+    }
+
+    /* Modales */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      overflow: auto;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .turno-encabezado {
+      /* existing styles */
+      position: relative; /* Needed for absolute positioning of info button */
+    }
+
+    .info-button {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: white; /* Or a suitable color for the header background */
+      font-size: 1.2em;
+      cursor: pointer;
+      padding: 5px;
+      line-height: 1;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+
+    .info-button:hover { opacity: 1; }
+
+    .modal.activo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-contenido {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-encabezado {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .modal-formulario {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .persona-adicional {
+      padding: 15px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      border-left: 4px solid #0f766e;
+      margin-top: 10px;
+    }
+
+    .persona-adicional-titulo {
+      font-weight: 600;
+      font-size: 0.9em;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .boton-agregar-persona {
+      background-color: #3b82f6;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .boton-agregar-persona:hover {
+      background-color: #2563eb;
+    }
+
+    .modal-botones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-botones button {
+      padding: 12px;
+    }
+
+    .modal-botones .btn-secondary {
+      grid-column: span 2;
+    }
+
+    /* Mensajes de error/confirmación */
+    .mensaje-confirmacion {
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .mensaje-exito {
+      background-color: #d1fae5;
+      border: 2px solid #10b981;
+      color: #065f46;
+    }
+
+    .mensaje-error {
+      background-color: #fee2e2;
+      border: 2px solid #ef4444;
+      color: #7f1d1d;
+    }
+
+    .mensaje-titulo {
+      font-weight: 700;
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+
+    .mensaje-texto {
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+
+    /* Cargando */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #e5e7eb;
+      border-top: 3px solid #0f766e;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Responsivo */
+    @media (max-width: 600px) {
+      .encabezado {
+        padding: 30px 15px;
+      }
+
+      .encabezado h1 {
+        font-size: 1.5em;
+      }
+
+      .encabezado p {
+        font-size: 0.95em;
+      }
+
+      .contenido {
+        padding: 20px 15px;
+      }
+
+      .seccion h2 {
+        font-size: 1.2em;
+      }
+
+      .turno-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .turno-info {
+        width: 100%;
+      }
+
+      .turno-disponibles,
+      .btn-apuntarse {
+        width: 100%;
+      }
+
+      .modal-botones {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-botones .btn-secondary {
+        grid-column: span 1;
+      }
+
+      .modal-contenido {
+        width: 95%;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="contenedor-principal">
+      <!-- Encabezado dinámico -->
+      <div class="encabezado">
+        <h1 id="textoEncabezado">Cargando...</h1>
+        <p id="textoSubencabezado"></p>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="contenido">
+        <!-- Sección de Turnos -->
+        <div class="seccion">
+          <h2 id="etiquetaTurnos">Turnos disponibles</h2>
+          <p id="textoMensajeTurnos"></p>
+          <div class="contenedor-turnos" id="contenedorTurnos">
+            <div style="text-align: center; padding: 40px;">
+              <div class="spinner"></div>
+              <p id="textoCargaTurnos" style="margin-top: 15px; color: #666;">Cargando turnos...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Reserva -->
+    <div id="modalReserva" class="modal">
+      <div class="modal-contenido">
+        <div class="modal-encabezado">
+          <span id="modalTituloTexto">Reservar turno:</span> <span id="turnoSeleccionado"></span>
+        </div>
+
+        <div class="modal-formulario">
+          <div class="grupo-campo">
+            <label id="labelModalNombre">Nombre *</label>
+            <input type="text" id="modalNombre" placeholder="Tu nombre completo">
+          </div>
+          <div class="grupo-campo">
+            <label id="labelModalTelefono">Teléfono *</label>
+            <input type="tel" id="modalTelefono" placeholder="+34 600-123-456">
+          </div>
+
+          <div class="grupo-campo">
+            <label for="selectorPersonasAdicionales" id="etiquetaPersonasAdicionales"></label>
+            <select id="selectorPersonasAdicionales">
+              <option value="0">Nadie más</option>
+            </select>
+          </div>
+
+          <p id="textoPersonasAdicionales" style="font-size: 0.85em; color: #666; display: none;"></p>
+
+          <div id="contenedorPersonasAdicionales"></div>
+        </div>
+
+        <div class="modal-botones">
+          <button class="btn-primary" id="btnConfirmarReserva">Confirmar Reserva</button>
+          <button class="btn-secondary" id="btnCancelarReserva">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="modalConfirmacion" class="modal">
+      <div class="modal-contenido">
+        <div id="contenidoConfirmacion"></div>
+      </div>
+    </div>
+
+    <!-- Modal de Información (para encabezados) -->
+    <div id="modalInfo" class="modal">
+      <div class="modal-contenido">
+        <div class="modal-encabezado" id="modalInfoTitulo"></div>
+        <div id="modalInfoContenido" style="margin-bottom: 20px;"></div>
+        <button class="btn-primary" style="width:100%;" onclick="cerrarModalInfo()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Reemplaza con la URL de tu Web App de Google Apps Script desplegada
+    // Asegúrate de que la Web App esté desplegada para "Cualquier usuario, incluso anónimo"
+    const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwJJcWPJ6p-rJC4fMnHTdzY9ihf_HbdDAb6dytkzzEyrBSEAyx744-Ax2-Aa1Qdn7NbZA/exec'; // EJ: https://script.google.com/macros/s/AKfycb.../exec
+
+    // Variables globales
+    let datosUI = {};
+    let turnosAgrupados = [];
+    let turnoSeleccionado = null;
+    let reservaEnProgreso = false;
+    let redirectUrl = '';
+
+    async function callApi(action, params = {}) {
+      const urlParams = new URLSearchParams({ accion: action });
+      for (const key in params) {
+        urlParams.append(key, params[key]);
+      }
+      const url = `${APPS_SCRIPT_WEB_APP_URL}?${urlParams.toString()}`;
+      
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error calling API:', error);
+        return { status: 'error', message: error.message || 'Error de red desconocido' };
+      }
+    }
+
+    /**
+     * Inicialización al cargar la página
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+      document.title = 'Reserva de Turnos';
+      cargarDatos();
+    });
+
+    /**
+     * Cargar datos de la UI y turnos desde el servidor
+     */
+    async function cargarDatos() {
+      try {
+        const result = await callApi('getTextos');
+        if (result.status === 'ok') {
+          datosUI = result.data;
+          redirectUrl = getTexto('Redirect URL', '');
+          renderizarEncabezado();
+          await cargarTurnos(); // Esperar a que los turnos se carguen
+        } else {
+          mostrarError('Error al cargar los textos: ' + result.message);
+        }
+      } catch (error) {
+        mostrarError('Error al cargar los textos: ' + error.message);
+      }
+    }
+
+    function getTexto(key, fallback) {
+      return datosUI[key] || fallback || '';
+    }
+
+    /**
+     * Renderizar encabezado y etiquetas dinámicas
+     */
+    function renderizarEncabezado() {
+      document.getElementById('textoEncabezado').textContent = getTexto('Encabezado', 'Reserva de Turnos');
+      document.getElementById('textoSubencabezado').textContent = getTexto('Subencabezado', 'Colaboración en turnos');
+      document.getElementById('etiquetaTurnos').textContent = getTexto('Inicio turnos', 'Turnos disponibles');
+      document.getElementById('textoMensajeTurnos').textContent = getTexto('Inicio turnos l2', '');
+      document.getElementById('textoPersonasAdicionales').textContent = getTexto('Varios texto', '');
+      document.getElementById('textoPersonasAdicionales').style.display = 'none';
+      document.getElementById('labelModalNombre').textContent = getTexto('Label nombre', 'Nombre *');
+      document.getElementById('modalNombre').placeholder = getTexto('Placeholder nombre', 'Tu nombre completo');
+      document.getElementById('labelModalTelefono').textContent = getTexto('Label telefono', 'Teléfono *');
+      document.getElementById('modalTelefono').placeholder = getTexto('Placeholder telefono', '+34 600-123-456');
+      document.getElementById('etiquetaPersonasAdicionales').textContent = getTexto('Varios', '¿Quieres apuntar a otras personas?');
+      document.getElementById('modalTituloTexto').textContent = getTexto('Modal reserva', 'Reservar turno:');
+      document.getElementById('btnConfirmarReserva').textContent = getTexto('Boton confirmar', 'Confirmar Reserva');
+      document.getElementById('btnCancelarReserva').textContent = getTexto('Boton cancelar', 'Cancelar');
+      document.getElementById('textoCargaTurnos').textContent = getTexto('Cargando turnos', 'Cargando turnos...');
+    }
+
+    /**
+     * Cargar y renderizar turnos
+     */
+    async function cargarTurnos() {
+      try {
+        const result = await callApi('getTurnos');
+        if (result.status === 'ok') {
+          turnosAgrupados = result.data;
+          renderizarTurnos();
+        } else {
+          mostrarError('Error al cargar los turnos: ' + result.message);
+        }
+      } catch (error) {
+        mostrarError('Error al cargar los turnos: ' + error.message);
+      }
+    }
+
+    /**
+     * Renderizar turnos en la UI
+     */
+    function renderizarTurnos() {
+      const contenedor = document.getElementById('contenedorTurnos');
+      contenedor.innerHTML = '';
+
+      turnosAgrupados.forEach(item => {
+        if (item.tipo === 'encabezado') {
+          const div = document.createElement('div');
+          div.className = 'turno-encabezado';
+          div.textContent = item.titulo;
+
+          // Add info button if description exists
+          if (item.descripcion) {
+            const infoBtn = document.createElement('button');
+            infoBtn.className = 'info-button';
+            infoBtn.innerHTML = '&#9432;'; // Unicode for info icon
+            infoBtn.title = 'Más información';
+            infoBtn.addEventListener('click', (e) => {
+              e.stopPropagation(); // Prevent any parent click handlers
+              mostrarInfoModal(item.titulo, item.descripcion);
+            });
+            div.appendChild(infoBtn);
+          }
+          contenedor.appendChild(div);
+        } else {
+          const card = crearCardTurno(item);
+          contenedor.appendChild(card);
+        }
+      });
+
+      // Event delegation para los botones de apuntarse
+      contenedor.addEventListener('click', function(event) {
+        if (event.target.classList.contains('btn-apuntarse')) {
+          const indice = event.target.dataset.indice;
+          const turno = turnosAgrupados[indice];
+          abrirModalReserva(turno);
+        }
+      });
+    }
+
+    /**
+     * Crear card de turno
+     */
+    function crearCardTurno(turno) {
+      const card = document.createElement('div');
+      card.className = 'turno-card';
+
+      // Determinar clase según disponibilidad
+      if (turno.disponibles >= 4) {
+        card.classList.add('disponible');
+      } else if (turno.disponibles >= 2) {
+        card.classList.add('bajo');
+      } else if (turno.disponibles === 1) {
+        card.classList.add('bajo');
+      } else if (turno.disponibles === 0) {
+        card.classList.add('sin-puestos');
+      }
+
+      const info = document.createElement('div');
+      info.className = 'turno-info';
+      info.innerHTML = `
+        <div class="turno-dia">${turno.dia} - ${turno.turno}</div>
+        <div class="turno-detalles">${turno.horario}</div>
+      `;
+
+      const disponibles = document.createElement('div');
+      disponibles.className = 'turno-disponibles';
+      disponibles.textContent = `${turno.disponibles} puestos`;
+
+      const button = document.createElement('button');
+      button.className = 'btn-apuntarse';
+      button.textContent = getTexto('Boton', 'Apuntarse');
+      button.dataset.indice = turnosAgrupados.indexOf(turno);
+      button.disabled = turno.disponibles === 0;
+
+      card.appendChild(info);
+      card.appendChild(disponibles);
+      card.appendChild(button);
+
+      return card;
+    }
+
+    /**
+     * Abrir modal de reserva
+     */
+    function abrirModalReserva(turno) {
+      turnoSeleccionado = turno;
+
+      // Limpiar campos
+      document.getElementById('modalNombre').value = '';
+      document.getElementById('modalTelefono').value = '';
+      document.getElementById('contenedorPersonasAdicionales').innerHTML = '';
+      document.getElementById('selectorPersonasAdicionales').value = '0';
+
+      // Mostrar nombre del turno
+      document.getElementById('turnoSeleccionado').textContent = 
+        `${turno.dia} - ${turno.turno} (${turno.horario})`;
+
+      // Actualizar selector de personas adicionales
+      const selector = document.getElementById('selectorPersonasAdicionales');
+      selector.innerHTML = `<option value="0">${getTexto('Select nadie', 'Nadie más')}</option>`;
+
+      for (let i = 1; i <= turno.disponibles - 1; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `${i} ${i === 1 ? 'persona' : 'personas'} más`;
+        selector.appendChild(option);
+      }
+
+      // Ocultar texto de personas adicionales al abrir el modal
+      const textoPersonas = document.getElementById('textoPersonasAdicionales');
+      textoPersonas.style.display = 'none';
+
+      // Agregar event listener al selector
+      selector.onchange = actualizarCamposPersonasAdicionales;
+
+      // Mostrar modal
+      document.getElementById('modalReserva').classList.add('activo');
+    }
+
+    /**
+     * Actualizar campos de personas adicionales
+     */
+    function actualizarCamposPersonasAdicionales() {
+      const cantidad = parseInt(document.getElementById('selectorPersonasAdicionales').value);
+      const contenedor = document.getElementById('contenedorPersonasAdicionales');
+      const textoPersonas = document.getElementById('textoPersonasAdicionales');
+      contenedor.innerHTML = '';
+
+      if (cantidad > 0) {
+        textoPersonas.style.display = 'block';
+      } else {
+        textoPersonas.style.display = 'none';
+      }
+
+      for (let i = 0; i < cantidad; i++) {
+        const personaDiv = document.createElement('div');
+        personaDiv.className = 'persona-adicional';
+
+        personaDiv.innerHTML = `
+          <div class="persona-adicional-titulo">Persona adicional ${i + 1}</div>
+          <div class="grupo-campo">
+            <label>Nombre</label>
+            <input type="text" class="nombre-adicional" placeholder="${getTexto('Placeholder nombre adicional', 'Nombre completo')}">
+          </div>
+          <div class="grupo-campo">
+            <label>Teléfono</label>
+            <input type="tel" class="telefono-adicional" placeholder="${getTexto('Placeholder telefono adicional', '+34 600-123-456')}">
+          </div>
+        `;
+
+        contenedor.appendChild(personaDiv);
+      }
+    }
+
+    /**
+     * Confirmar reserva
+     */
+    async function confirmarReserva() {
+      if (reservaEnProgreso) {
+        return;
+      }
+
+      const nombre = document.getElementById('modalNombre').value.trim();
+      const telefono = document.getElementById('modalTelefono').value.trim();
+
+      if (!nombre || !telefono) {
+        alert(getTexto('Mensaje datos incompletos', 'Por favor, ingresa tu nombre y teléfono'));
+        return;
+      }
+
+      // Recopilar personas adicionales
+      const personasAdicionales = [];
+      const nombresAdicionales = document.querySelectorAll('.nombre-adicional');
+      const telefonosAdicionales = document.querySelectorAll('.telefono-adicional');
+
+      for (let i = 0; i < nombresAdicionales.length; i++) {
+        const nombreAd = nombresAdicionales[i].value.trim();
+        const telefonoAd = telefonosAdicionales[i].value.trim();
+
+        if (!nombreAd) {
+          alert(getTexto('Mensaje falta nombre adicional', 'Por favor, ingresa los nombres de las personas adicionales'));
+          return;
+        }
+
+        personasAdicionales.push({
+          nombre: nombreAd,
+          telefono: telefonoAd
+        });
+      }
+
+      reservaEnProgreso = true;
+      const botonConfirmar = document.getElementById('btnConfirmarReserva');
+      botonConfirmar.disabled = true;
+      const textoAnterior = botonConfirmar.textContent;
+      botonConfirmar.textContent = getTexto('Boton enviando', 'Enviando...');
+
+      // Preparar datos de reserva
+      const datosReserva = {
+        dia: turnoSeleccionado.dia,
+        turno: turnoSeleccionado.turno,
+        horario: turnoSeleccionado.horario,
+        persona: {
+          nombre: nombre,
+          telefono: telefono
+        },
+        personasAdicionales: personasAdicionales
+      };
+
+      try {
+        const respuesta = await callApi('guardarReserva', { datosReserva: JSON.stringify(datosReserva) });
+        
+        botonConfirmar.disabled = false;
+        botonConfirmar.textContent = textoAnterior;
+        reservaEnProgreso = false;
+        cerrarModalReserva();
+        // La respuesta de la API ya tiene {exito: boolean, mensaje: string}
+        mostrarConfirmacion(respuesta); 
+      } catch (error) {
+        botonConfirmar.disabled = false;
+        botonConfirmar.textContent = textoAnterior;
+        reservaEnProgreso = false;
+        mostrarError('Error en la reserva: ' + error.message);
+      }
+    }
+
+    /**
+     * Cerrar modal de reserva
+     */
+    function cerrarModalReserva() {
+      document.getElementById('modalReserva').classList.remove('activo');
+    }
+
+    /**
+     * Mostrar modal de confirmación
+     */
+    function mostrarConfirmacion(respuesta) {
+      const contenido = document.getElementById('contenidoConfirmacion');
+
+      let html = '';
+      // La respuesta de la API tiene 'status' y 'message', y también 'exito' y 'mensaje' de la función guardarReserva
+      if (respuesta.status === 'ok' && respuesta.exito) {
+        html = `
+          <div class="mensaje-confirmacion mensaje-exito">
+            <div class="mensaje-titulo">¡Éxito!</div>
+            <div class="mensaje-texto">${respuesta.mensaje}</div>
+          </div>
+          <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="cerrarConfirmacion()">OK</button>
+        `;
+      } else {
+        html = `
+          <div class="mensaje-confirmacion mensaje-error">
+            <div class="mensaje-titulo">Error</div>
+            <div class="mensaje-texto">${respuesta.message || respuesta.mensaje || 'Ocurrió un error desconocido.'}</div>
+          </div>
+          <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="cerrarConfirmacion()">OK</button>
+        `;
+      }
+
+      contenido.innerHTML = html;
+      document.getElementById('modalConfirmacion').classList.add('activo');
+    }
+
+    function cerrarConfirmacion() {
+      document.getElementById('modalConfirmacion').classList.remove('activo');
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+        return;
+      }
+      setTimeout(function() {
+        try {
+          window.location.reload(true);
+        } catch (e) {
+          window.location.href = window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'reload=' + Date.now();
+        }
+      }, 50);
+    }
+
+    /**
+     * Mostrar error
+     */
+    function mostrarError(mensaje) {
+      const contenedor = document.getElementById('contenedorTurnos');
+      contenedor.innerHTML = `
+        <div class="mensaje-confirmacion mensaje-error">
+          <div class="mensaje-titulo">Error</div>
+          <div class="mensaje-texto">${mensaje}</div>
+        </div>
+      `;
+    }
+
+    /**
+     * Mostrar modal de información para encabezados
+     */
+    function mostrarInfoModal(titulo, contenido) {
+      document.getElementById('modalInfoTitulo').textContent = titulo;
+      document.getElementById('modalInfoContenido').textContent = contenido;
+      document.getElementById('modalInfo').classList.add('activo');
+    }
+
+    /**
+     * Cerrar modal de información
+     */
+    function cerrarModalInfo() {
+      document.getElementById('modalInfo').classList.remove('activo');
+    }
+
+    /**
+     * Event listeners
+     */
+    document.getElementById('btnConfirmarReserva').addEventListener('click', confirmarReserva);
+    document.getElementById('btnCancelarReserva').addEventListener('click', cerrarModalReserva);
+
+    // Cerrar modales al hacer clic fuera
+    window.addEventListener('click', function(event) {
+      const modalReserva = document.getElementById('modalReserva');
+      const modalConfirmacion = document.getElementById('modalConfirmacion');
+      const modalInfo = document.getElementById('modalInfo'); // New
+
+      if (event.target === modalReserva) {
+        modalReserva.classList.remove('activo');
+      }
+
+      if (event.target === modalConfirmacion) {
+        modalConfirmacion.classList.remove('activo');
+      }
+      
+      if (event.target === modalInfo) { // New
+        modalInfo.classList.remove('activo');
+      }
+    });
+  </script>
+</body>
+</html>
