@@ -289,6 +289,12 @@
       }
     }
 
+    .logo-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+
     .turno-encabezado {
       /* existing styles */
       position: relative; /* Needed for absolute positioning of info button */
@@ -301,16 +307,12 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: white; /* Or a suitable color for the header background */
+      color: black; /* Cambiado de blanco a negro */
       font-size: 1.2em;
       cursor: pointer;
       padding: 5px;
       line-height: 1;
-      opacity: 0.8;
-      transition: opacity 0.3s ease;
     }
-
-    .info-button:hover { opacity: 1; }
 
     .modal.activo {
       display: flex;
@@ -504,6 +506,11 @@
       <div class="encabezado">
         <h1 id="textoEncabezado">Cargando...</h1>
         <p id="textoSubencabezado"></p>
+      </div>
+
+      <!-- Imagen del logo -->
+      <div class="logo-container">
+        <img src="logo.png" alt="Logo de Buztintxuri" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
       </div>
 
       <!-- Contenido principal -->
