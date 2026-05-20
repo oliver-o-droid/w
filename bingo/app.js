@@ -328,6 +328,7 @@ async function cargarListaCanciones(id) {
             // Asignar eventos de generación PDF/HTML
             document.getElementById('btnGenerarPdf').onclick = () => generarArchivoLista(id, 'generarPdfListaCanciones', 'PDF');
             document.getElementById('btnGenerarHtml').onclick = () => generarArchivoLista(id, 'generarHtmlListaCanciones', 'HTML');
+            document.getElementById('btnBorrarLista').onclick = () => ejecutarBorradoLista(id);
             
         } else {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--error-color); padding: 20px;">Error: ${res.message}</td></tr>`;
@@ -355,6 +356,34 @@ async function generarArchivoLista(id, action, type) {
     } catch (err) {
         msgSongs.className = 'mensaje error';
         msgSongs.textContent = 'Error de comunicación durante la generación.';
+    }
+}
+
+async function ejecutarBorradoLista(id) {
+    const confirmar = confirm(`⚠️ ¿Estás seguro de que quieres borrar la lista de canciones de este proyecto?\n\nEsta acción eliminará la configuración y los datos asociados de la hoja de cálculo. Tendrás que volver a subir la lista CSV.`);
+    if (!confirmar) return;
+
+    const btn = document.getElementById('btnBorrarLista');
+    setLoading(btn, true, 'Borrando');
+
+    try {
+        const res = await callApi({
+            action: 'borrarDatosUsuario',
+            id: id
+        }, 'POST');
+
+        setLoading(btn, false, 'Borrar Lista');
+
+        if (res.status === 'ok') {
+            alert('¡Lista de canciones borrada con éxito!');
+            // Redirigir a la vista de setup para este mismo usuario
+            mostrarSetup(id);
+        } else {
+            alert(`Error al borrar la lista: ${res.message}`);
+        }
+    } catch (err) {
+        setLoading(btn, false, 'Borrar Lista');
+        alert('Error de conexión al intentar borrar la lista.');
     }
 }
 

@@ -563,3 +563,144 @@ table input[type="number"] {
 #historyTableContainer table a[href*="drive.google.com/file"]:hover {
     background-color: #b91c1c;
 }
+
+/* --- CLASE DE ACCIÓN PELIGRO (DANGER BUTTON) --- */
+.btn-danger {
+    background-color: transparent;
+    border: 2px solid rgba(239, 68, 68, 0.4);
+    color: #f87171;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #ef4444;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+}
+
+/* --- ADAPTACIÓN MÓVIL (TARJETAS PARA CANCIONES Y PLANTILLAS) --- */
+@media (max-width: 600px) {
+    /* Transformación de la tabla de canciones a formato de tarjetas */
+    #songsTableContainer {
+        border: none;
+        background: none;
+    }
+    
+    #songsTable thead {
+        display: none;
+    }
+    
+    #songsTable, 
+    #songsTable tbody, 
+    #songsTable tr, 
+    #songsTable td {
+        display: block;
+        width: 100%;
+    }
+    
+    #songsTable tr {
+        background-color: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s, border-color 0.2s;
+    }
+    
+    #songsTable tr:hover {
+        border-color: rgba(168, 85, 247, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    #songsTable td {
+        padding: 4px 0;
+        border-bottom: none;
+        text-align: left;
+    }
+    
+    /* El número (#) se renderiza inline y con color secundario */
+    #songsTable td:nth-child(1) {
+        display: inline-block;
+        font-weight: 700;
+        color: var(--secondary-color);
+        font-size: 1.05rem;
+        margin-right: 8px;
+    }
+    
+    /* El título de la canción se renderiza inline y destacado */
+    #songsTable td:nth-child(2) {
+        display: inline-block;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-color);
+    }
+    
+    /* El artista se renderiza en una nueva línea con estilo atenuado */
+    #songsTable td:nth-child(3) {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        padding-left: 28px; /* sangría con respecto al número + separación */
+        margin-bottom: 6px;
+    }
+    
+    /* El botón de Spotify con línea de separación arriba */
+    #songsTable td:nth-child(4) {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 10px;
+        margin-top: 8px;
+        text-align: right;
+    }
+    
+    #songsTable td:nth-child(4) .spotify-pill {
+        width: 100%;
+        text-align: center;
+        padding: 8px;
+    }
+
+    /* Transformación de la tabla de plantillas a tarjetas en móvil */
+    #listaPlantillas thead {
+        display: none;
+    }
+
+    #listaPlantillas table,
+    #listaPlantillas tbody,
+    #listaPlantillas tr,
+    #listaPlantillas td {
+        display: block;
+        width: 100%;
+    }
+
+    #listaPlantillas tr {
+        background-color: rgba(255, 255, 255, 0.01);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    #listaPlantillas td {
+        padding: 4px 0;
+        text-align: left;
+    }
+
+    #listaPlantillas td:nth-child(2) {
+        margin-top: 8px;
+    }
+
+    #listaPlantillas td div[id^="controls-"] {
+        justify-content: flex-start !important;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    #listaPlantillas td div[id^="controls-"] input[type="number"] {
+        flex-grow: 1;
+    }
+    
+    #listaPlantillas td div[id^="controls-"] .btn {
+        flex-grow: 1;
+        width: 45%;
+        text-align: center;
+    }
+}
