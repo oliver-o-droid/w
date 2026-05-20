@@ -691,16 +691,29 @@ table input[type="number"] {
     #listaPlantillas td div[id^="controls-"] {
         justify-content: flex-start !important;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 12px;
+    }
+    
+    #listaPlantillas td div[id^="controls-"] > div {
+        flex: 1 1 40%;
+        min-width: 100px;
     }
     
     #listaPlantillas td div[id^="controls-"] input[type="number"] {
-        flex-grow: 1;
+        width: 100% !important;
     }
     
-    #listaPlantillas td div[id^="controls-"] .btn {
-        flex-grow: 1;
-        width: 45%;
+    #listaPlantillas td div[id^="controls-"] .actions-wrapper {
+        width: 100% !important;
+        margin-top: 8px !important;
+        justify-content: flex-start;
+        display: flex;
+        gap: 8px;
+    }
+
+    #listaPlantillas td div[id^="controls-"] .actions-wrapper .btn {
+        flex: 1;
+        width: auto;
         text-align: center;
     }
 }

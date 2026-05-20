@@ -416,13 +416,21 @@ async function cargarPlantillas(id) {
             res.data.forEach(p => {
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td style="font-weight: 600;">${p.nombre}</td>
-                    <td style="text-align: right;">
-                        <div id="controls-${p.docId}" style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
-                            <input type="number" id="cartonInicial-${p.docId}" value="1" min="1" style="width: 80px;" title="Nº inicial del primer cartón">
-                            <input type="number" id="numPaginas-${p.docId}" value="10" min="1" style="width: 80px;" title="Nº de páginas (3 cartones por página)">
-                            <a href="${p.enlace}" target="_blank" class="btn btn-outline btn-sm">Ver</a>
-                            <button class="btn btn-primary btn-sm" id="btnGen-${p.docId}">Generar</button>
+                    <td style="font-weight: 600; vertical-align: middle;">${p.nombre}</td>
+                    <td style="text-align: right; vertical-align: middle;">
+                        <div id="controls-${p.docId}" style="display: flex; align-items: center; justify-content: flex-end; gap: 16px; flex-wrap: wrap;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Primer Cartón</label>
+                                <input type="number" id="cartonInicial-${p.docId}" value="1" min="1" style="width: 90px; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Cant. Hojas (Máx. 10)</label>
+                                <input type="number" id="numPaginas-${p.docId}" value="10" min="1" max="10" style="width: 90px; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 18px;" class="actions-wrapper">
+                                <a href="${p.enlace}" target="_blank" class="btn btn-outline btn-sm">Ver</a>
+                                <button class="btn btn-primary btn-sm" id="btnGen-${p.docId}">Generar</button>
+                            </div>
                         </div>
                         <div id="progress-${p.docId}" class="log-console" style="display: none;"></div>
                     </td>
@@ -448,8 +456,18 @@ async function iniciarGeneracionCartones(id, plantillaDocId) {
     const controls = document.getElementById(`controls-${plantillaDocId}`);
     const consoleLogs = document.getElementById(`progress-${plantillaDocId}`);
     
-    const cartonInicial = parseInt(document.getElementById(`cartonInicial-${plantillaDocId}`).value, 10) || 1;
-    const numPaginas = parseInt(document.getElementById(`numPaginas-${plantillaDocId}`).value, 10) || 10;
+    let cartonInicial = parseInt(document.getElementById(`cartonInicial-${plantillaDocId}`).value, 10) || 1;
+    let numPaginas = parseInt(document.getElementById(`numPaginas-${plantillaDocId}`).value, 10) || 10;
+    
+    // Limitar el número máximo de páginas a 10 para evitar problemas de cuota o timeouts
+    if (numPaginas > 10) {
+        numPaginas = 10;
+        document.getElementById(`numPaginas-${plantillaDocId}`).value = 10;
+    }
+    if (numPaginas < 1) {
+        numPaginas = 1;
+        document.getElementById(`numPaginas-${plantillaDocId}`).value = 1;
+    }
     
     controls.style.display = 'none';
     consoleLogs.innerHTML = '';
