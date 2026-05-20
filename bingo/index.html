@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Musical - Panel de Control Externo</title>
+    <!-- Importamos tipografía Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- VISTA DE LOGIN -->
+    <div id="loginView" class="view-container active-view">
+        <div class="card card-login">
+            <h1>Bingo Musical</h1>
+            <p class="subtitle">Introduce el identificador de tu proyecto para acceder al panel de control.</p>
+            <div class="input-group">
+                <input type="text" id="codigoUsuario" placeholder="Código de proyecto (Ej: Fiestas2025)" autocomplete="off">
+            </div>
+            <button id="btnVerificar" class="btn btn-primary btn-block">Verificar y Entrar</button>
+            <div id="mensajeLogin" class="mensaje error" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- VISTA DE CONFIGURACIÓN INICIAL (Si existe el usuario pero necesita subir CSV) -->
+    <div id="setupView" class="view-container">
+        <div class="card card-setup">
+            <h1>Configuración de Proyecto</h1>
+            <p class="subtitle">Parece que es la primera vez que entras o necesitas configurar los datos de tu proyecto "<span id="setupUserName" style="color: var(--primary-color);"></span>".</p>
+            
+            <div class="input-group">
+                <label for="setupTexto1">Título Principal del Cartón:</label>
+                <input type="text" id="setupTexto1" placeholder="Ej: Bingo Musical">
+            </div>
+
+            <div class="input-group">
+                <label for="setupTexto2">Subtítulo del Cartón:</label>
+                <input type="text" id="setupTexto2" placeholder="Ej: Fiestas del Barrio 2025">
+            </div>
+
+            <div class="input-group">
+                <div class="info-callout">
+                    <strong>Pasos para la Lista de Canciones (CSV):</strong><br>
+                    1. Abre la herramienta externa para exportar listas:<br>
+                    <a href="https://www.chosic.com/spotify-playlist-exporter/" target="_blank" class="btn btn-secondary text-center" style="margin: 10px 0; display: block;">Ir a Web de Exportación Spotify</a>
+                    2. Pega el enlace de tu playlist de Spotify y descarga el archivo CSV.<br>
+                    3. Sube el archivo CSV descargado a continuación.
+                </div>
+                <label for="setupCsvFile">Archivo CSV de Canciones:</label>
+                <input type="file" id="setupCsvFile" accept=".csv">
+            </div>
+
+            <div class="button-group flex-between">
+                <button id="btnSetup" class="btn btn-primary">Crear Configuración</button>
+                <button id="btnSetupCancel" class="btn btn-outline">Cancelar</button>
+            </div>
+            <div id="mensajeSetup" class="mensaje error" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- VISTA DE PANEL PRINCIPAL (DASHBOARD) -->
+    <div id="mainView" class="view-container">
+        <div class="dashboard-layout">
+            <!-- Barra Superior del Panel -->
+            <header class="dashboard-header">
+                <div class="brand">
+                    <h1>Bingo Musical</h1>
+                    <span class="project-tag">Proyecto: <strong id="currentUserId">...</strong></span>
+                </div>
+                <button id="btnCerrarSesion" class="btn btn-outline btn-logout">
+                    <span>Cerrar Sesión</span>
+                </button>
+            </header>
+
+            <!-- Títulos del Cartón Activo -->
+            <div class="project-banner">
+                <h2 id="texto1" class="main-title">...</h2>
+                <h3 id="texto2" class="sub-title">...</h3>
+            </div>
+
+            <!-- Navegación por Pestañas -->
+            <nav class="tabs-nav">
+                <button class="tab-btn active" data-tab="tab-songs">2. Lista de Canciones</button>
+                <button class="tab-btn" data-tab="tab-generate">3. Generar Cartones</button>
+                <button class="tab-btn" data-tab="tab-history">4. Cartones Realizados</button>
+            </nav>
+
+            <!-- CONTENIDOS DE LAS PESTAÑAS -->
+            <main class="tabs-content">
+                <!-- PESTAÑA 1: LISTA DE CANCIONES -->
+                <section id="tab-songs" class="tab-panel active">
+                    <div class="panel-header">
+                        <h4>Lista Oficial de Canciones del Bingo</h4>
+                        <div class="header-actions">
+                            <button id="btnGenerarPdf" class="btn btn-primary btn-sm">Generar PDF</button>
+                            <button id="btnGenerarHtml" class="btn btn-outline btn-sm">Generar HTML Interactivo</button>
+                        </div>
+                    </div>
+                    
+                    <div id="songsTableContainer" class="table-responsive">
+                        <table id="songsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 70px; text-align: center;">#</th>
+                                    <th>Título de la Canción</th>
+                                    <th>Artista</th>
+                                    <th style="width: 120px; text-align: center;">Spotify</th>
+                                </tr>
+                            </thead>
+                            <tbody id="songsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="mensajeSongs" class="mensaje" style="display: none;"></div>
+                </section>
+
+                <!-- PESTAÑA 2: GENERAR CARTONES -->
+                <section id="tab-generate" class="tab-panel">
+                    <div class="grid-layout">
+                        <!-- Columna de Plantillas -->
+                        <div class="column-left">
+                            <h4>Plantillas de Cartón Disponibles</h4>
+                            <p class="section-desc">Selecciona la plantilla con el diseño visual que prefieras y configúrala para generar el lote.</p>
+                            
+                            <div id="listaPlantillas" class="templates-list-wrapper"></div>
+                        </div>
+
+                        <!-- Formulario de Añadir Plantilla -->
+                        <div class="column-right">
+                            <div class="card-embedded">
+                                <h4>¿Quieres Añadir una Plantilla?</h4>
+                                <p class="section-desc">Copia cualquier plantilla existente en tu Google Drive, modifícala, compártela como Lector (cualquier persona con enlace) y pégala aquí.</p>
+                                
+                                <div class="input-group">
+                                    <input type="text" id="plantillaNombre" placeholder="Nombre descriptivo (Ej: Navidad 2025)" autocomplete="off">
+                                </div>
+                                <div class="input-group">
+                                    <input type="url" id="plantillaEnlace" placeholder="Enlace del documento de Google" autocomplete="off">
+                                </div>
+                                <div class="button-group flex-start" style="gap: 10px;">
+                                    <button id="btnAgregarPlantilla" class="btn btn-primary btn-sm">Añadir Plantilla</button>
+                                    <button id="btnInstrucciones" class="btn btn-outline btn-sm">Instrucciones</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PESTAÑA 3: CARTONES REALIZADOS -->
+                <section id="tab-history" class="tab-panel">
+                    <h4>Historial de Generaciones Anteriores</h4>
+                    <p class="section-desc">Aquí puedes consultar y descargar todos los lotes de cartones de Bingo que se han generado en tu proyecto.</p>
+                    
+                    <div id="historyTableContainer" class="table-responsive">
+                        <!-- Se inyecta la tabla directamente del servidor -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Cargar archivo lógico principal de la app -->
+    <script src="app.js"></script>
+</body>
+</html>
