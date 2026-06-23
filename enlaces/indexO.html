@@ -898,7 +898,7 @@
         html = `
           <div class="mensaje-confirmacion mensaje-error">
             <div class="mensaje-titulo">Error</div>
-            <div class="mensaje-texto">${respuesta.mensaje || 'Ocurrió un error desconocido.'}</div>
+            <div class="mensaje-texto">${respuesta.mensaje || respuesta.message || JSON.stringify(respuesta) || 'Ocurrió un error desconocido.'}</div>
           </div>
         `;
       }
