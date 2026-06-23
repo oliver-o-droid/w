@@ -206,7 +206,61 @@
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       z-index: 999;
       border: none;
+      cursor: pointer;
     }
+
+    .btn-flotante-left {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: var(--primary-accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      z-index: 999;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .btn-flotante-left.activo {
+      background-color: #f59e0b;
+    }
+
+    .contenedor-botones-edicion {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .btn-edicion {
+      flex: 1;
+      padding: 11px 5px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1em;
+      text-transform: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .btn-subir { background-color: #2563eb; color: white; }
+    .btn-subir:hover { background-color: #1d4ed8; }
+    .btn-bajar { background-color: #d97706; color: white; }
+    .btn-bajar:hover { background-color: #b45309; }
+    .btn-borrar { background-color: #dc2626; color: white; }
+    .btn-borrar:hover { background-color: #b91c1c; }
 
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -234,6 +288,7 @@
       .encabezado-app h1 { font-size: 1.5em; }
       .grupo-tarjetas { grid-template-columns: 1fr; }
       .btn-flotante { bottom: 20px; right: 20px; }
+      .btn-flotante-left { bottom: 20px; left: 20px; }
       .modal-botones { grid-template-columns: 1fr; }
     }
   </style>
@@ -262,6 +317,9 @@
 
   <!-- Botón flotante para añadir URL -->
   <button class="btn-flotante" id="btnAbrirModalAñadir" title="Añadir nuevo enlace">+</button>
+
+  <!-- Botón flotante para editar enlaces -->
+  <button class="btn-flotante-left" id="btnModoEdicion" title="Modo edición">✏️</button>
 
   <!-- Modal para Añadir URL -->
   <div id="modalAñadir" class="modal">
@@ -309,13 +367,14 @@
 
     const contenedorEnlaces = document.getElementById('contenedorEnlaces');
     const cargandoDiv = document.getElementById('cargando');
-
+    let modoEdicion = false;
 
     document.addEventListener('DOMContentLoaded', function() {
       // Listeners de los botones y modales
       document.getElementById('btnAbrirModalAñadir').addEventListener('click', abrirModalAñadir);
       document.getElementById('btnCancelarAñadir').addEventListener('click', cerrarModalAñadir);
       document.getElementById('btnConfirmarAñadir').addEventListener('click', confirmarAñadir);
+      document.getElementById('btnModoEdicion').addEventListener('click', toggleModoEdicion);
       window.addEventListener('click', function(event) {
         if (event.target.classList.contains('modal')) {
           event.target.classList.remove('activo');
@@ -474,18 +533,128 @@
       const info = document.createElement('div');
       info.className = 'enlace-info';
       info.innerHTML = `<div class="enlace-descripcion">${enlace.descripcion || 'Sin descripción'}</div>`;
-
-      const linkButton = document.createElement('a');
-      linkButton.className = 'btn-enlace';
-      linkButton.textContent = enlace.boton || 'Ir';
-      linkButton.href = enlace.url;
-      linkButton.target = '_blank';
-      linkButton.rel = 'noopener noreferrer';
-
       card.appendChild(info);
-      card.appendChild(linkButton);
+
+      if (modoEdicion) {
+        const editContainer = document.createElement('div');
+        editContainer.className = 'contenedor-botones-edicion';
+
+        const btnUp = document.createElement('button');
+        btnUp.className = 'btn-edicion btn-subir';
+        btnUp.innerHTML = '▲';
+        btnUp.title = 'Subir';
+        btnUp.onclick = () => subirFila(enlace.fila);
+
+        const btnDown = document.createElement('button');
+        btnDown.className = 'btn-edicion btn-bajar';
+        btnDown.innerHTML = '▼';
+        btnDown.title = 'Bajar';
+        btnDown.onclick = () => bajarFila(enlace.fila);
+
+        const btnDel = document.createElement('button');
+        btnDel.className = 'btn-edicion btn-borrar';
+        btnDel.innerHTML = '🗑️';
+        btnDel.title = 'Borrar';
+        btnDel.onclick = () => borrarFila(enlace.fila);
+
+        editContainer.appendChild(btnUp);
+        editContainer.appendChild(btnDown);
+        editContainer.appendChild(btnDel);
+        card.appendChild(editContainer);
+      } else {
+        const linkButton = document.createElement('a');
+        linkButton.className = 'btn-enlace';
+        linkButton.textContent = enlace.boton || 'Ir';
+        linkButton.href = enlace.url;
+        linkButton.target = '_blank';
+        linkButton.rel = 'noopener noreferrer';
+        card.appendChild(linkButton);
+      }
 
       return card;
+    }
+
+    function toggleModoEdicion() {
+      modoEdicion = !modoEdicion;
+      const btn = document.getElementById('btnModoEdicion');
+      btn.classList.toggle('activo', modoEdicion);
+      btn.textContent = modoEdicion ? '✅' : '✏️';
+      btn.title = modoEdicion ? 'Guardar cambios' : 'Modo edición';
+
+      const cachedData = localStorage.getItem('cachedEnlaces');
+      if (cachedData) {
+        renderizarEnlaces(JSON.parse(cachedData));
+      }
+    }
+
+    async function subirFila(fila) {
+      if (fila <= 2) return;
+      cargandoDiv.style.display = 'block';
+      try {
+        const response = await fetch(`${API_URL}?accion=moveUpRow&fila=${fila}`);
+        const result = await response.json();
+        if (result.exito) {
+          await forzarRecarga();
+        } else {
+          alert("Error: " + result.mensaje);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error de red");
+      } finally {
+        cargandoDiv.style.display = 'none';
+      }
+    }
+
+    async function bajarFila(fila) {
+      cargandoDiv.style.display = 'block';
+      try {
+        const response = await fetch(`${API_URL}?accion=moveDownRow&fila=${fila}`);
+        const result = await response.json();
+        if (result.exito) {
+          await forzarRecarga();
+        } else {
+          alert("Error: " + result.mensaje);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error de red");
+      } finally {
+        cargandoDiv.style.display = 'none';
+      }
+    }
+
+    async function borrarFila(fila) {
+      if (!confirm("¿Seguro que quieres borrar este enlace?")) return;
+      cargandoDiv.style.display = 'block';
+      try {
+        const response = await fetch(`${API_URL}?accion=deleteRow&fila=${fila}`);
+        const result = await response.json();
+        if (result.exito) {
+          await forzarRecarga();
+        } else {
+          alert("Error: " + result.mensaje);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error de red");
+      } finally {
+        cargandoDiv.style.display = 'none';
+      }
+    }
+
+    async function forzarRecarga() {
+      try {
+        const response = await fetch(`${API_URL}?accion=getUrls`);
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        const result = await response.json();
+        if (result.status === 'ok') {
+          localStorage.setItem('cachedEnlaces', JSON.stringify(result.data));
+          renderizarEnlaces(result.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     /**
