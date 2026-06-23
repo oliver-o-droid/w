@@ -261,6 +261,8 @@
     .btn-bajar:hover { background-color: #455a64; }
     .btn-borrar { background-color: #9e2a2b; color: white; }
     .btn-borrar:hover { background-color: #7f1d1d; }
+    .btn-editar-link { background-color: #d97706; color: white; }
+    .btn-editar-link:hover { background-color: #b45309; }
 
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -410,6 +412,7 @@
     const cargandoDiv = document.getElementById('cargando');
     const overlayProcesando = document.getElementById('overlayProcesando');
     let modoEdicion = false;
+    let editandoFila = null;
 
     function mostrarProcesando(mostrar) {
       overlayProcesando.style.display = mostrar ? 'flex' : 'none';
@@ -528,8 +531,10 @@
         return;
       }
 
+      let ultimoEncabezado = '';
       datos.forEach(item => {
         if (item.tipo === 'encabezado') {
+          ultimoEncabezado = item.titulo;
           const seccionActual = document.createElement('div');
           seccionActual.className = 'seccion-enlaces';
 
@@ -558,6 +563,7 @@
           contenedorEnlaces.appendChild(seccionActual);
 
         } else if (item.tipo === 'enlace') {
+          item.categoria = ultimoEncabezado;
           const grupoTarjetasActual = contenedorEnlaces.lastChild.querySelector('.grupo-tarjetas');
           const card = crearCardEnlace(item); 
           if (grupoTarjetasActual) {
@@ -597,6 +603,12 @@
         btnDown.title = 'Bajar';
         btnDown.onclick = () => bajarFila(enlace.fila);
 
+        const btnEdit = document.createElement('button');
+        btnEdit.className = 'btn-edicion btn-editar-link';
+        btnEdit.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+        btnEdit.title = 'Editar';
+        btnEdit.onclick = () => abrirModalEditar(enlace);
+
         const btnDel = document.createElement('button');
         btnDel.className = 'btn-edicion btn-borrar';
         btnDel.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
@@ -605,6 +617,7 @@
 
         editContainer.appendChild(btnUp);
         editContainer.appendChild(btnDown);
+        editContainer.appendChild(btnEdit);
         editContainer.appendChild(btnDel);
         card.appendChild(editContainer);
       } else {
@@ -726,6 +739,10 @@
     // --- Lógica para el Modal de Añadir (sin cambios) ---
 
     async function abrirModalAñadir() {
+      editandoFila = null;
+      document.querySelector('#modalAñadir .modal-encabezado').textContent = 'Añadir Nuevo Enlace';
+      document.getElementById('btnConfirmarAñadir').textContent = 'Guardar Enlace';
+
       document.getElementById('modalBoton').value = '';
       document.getElementById('modalDescripcion').value = '';
       document.getElementById('modalUrl').value = '';
@@ -762,8 +779,55 @@
       document.getElementById('modalAñadir').classList.add('activo');
     }
 
+    async function abrirModalEditar(enlace) {
+      editandoFila = enlace.fila;
+      
+      document.querySelector('#modalAñadir .modal-encabezado').textContent = 'Editar Enlace';
+      document.getElementById('btnConfirmarAñadir').textContent = 'Guardar Cambios';
+
+      document.getElementById('modalBoton').value = enlace.boton || '';
+      document.getElementById('modalDescripcion').value = enlace.descripcion || '';
+      document.getElementById('modalUrl').value = enlace.url || '';
+      document.getElementById('modalNuevoEncabezado').value = '';
+      document.getElementById('grupoNuevoEncabezado').style.display = 'none';
+
+      const select = document.getElementById('modalEncabezado');
+      select.innerHTML = '';
+      select.disabled = true;
+
+      try {
+        const response = await fetch(`${API_URL}?accion=getHeaders`);
+        const result = await response.json();
+        if (result.status === 'ok') {
+          result.data.forEach(header => {
+            const option = new Option(header, header);
+            select.add(option);
+          });
+          select.add(new Option('--- Añadir nuevo encabezado ---', 'nuevo'));
+          select.disabled = false;
+          
+          if (enlace.categoria) {
+            select.value = enlace.categoria;
+          } else {
+            const existeOtros = Array.from(select.options).some(opt => opt.value === 'Otros');
+            if (existeOtros) {
+              select.value = 'Otros';
+            }
+          }
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (err) {
+        console.error("Error al cargar encabezados:", err);
+        select.disabled = false;
+      }
+
+      document.getElementById('modalAñadir').classList.add('activo');
+    }
+
     function cerrarModalAñadir() {
       document.getElementById('modalAñadir').classList.remove('activo');
+      editandoFila = null;
     }
 
     async function confirmarAñadir() {
@@ -787,21 +851,25 @@
       btnConfirmar.disabled = true;
       btnConfirmar.textContent = 'Guardando...';
 
-      const params = new URLSearchParams({
-        accion: 'addUrl',
-        boton: boton,
-        descripcion: descripcion,
-        url: url,
-        selectedHeader: selectedHeader,
-        newHeader: newHeader
-      });
+      const params = new URLSearchParams();
+      if (editandoFila !== null) {
+        params.append('accion', 'updateUrl');
+        params.append('fila', editandoFila);
+      } else {
+        params.append('accion', 'addUrl');
+      }
+      params.append('boton', boton);
+      params.append('descripcion', descripcion);
+      params.append('url', url);
+      params.append('selectedHeader', selectedHeader);
+      params.append('newHeader', newHeader);
 
       try {
         const response = await fetch(`${API_URL}?${params.toString()}`);
         const respuesta = await response.json();
         
         btnConfirmar.disabled = false;
-        btnConfirmar.textContent = 'Guardar Enlace';
+        btnConfirmar.textContent = editandoFila !== null ? 'Guardar Cambios' : 'Guardar Enlace';
         cerrarModalAñadir();
         mostrarConfirmacion(respuesta);
         if (respuesta.exito) {
@@ -809,7 +877,7 @@
         }
       } catch (error) {
         btnConfirmar.disabled = false;
-        btnConfirmar.textContent = 'Guardar Enlace';
+        btnConfirmar.textContent = editandoFila !== null ? 'Guardar Cambios' : 'Guardar Enlace';
         mostrarConfirmacion({ exito: false, mensaje: error.message });
       }
     }
