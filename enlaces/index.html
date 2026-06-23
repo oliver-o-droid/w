@@ -388,8 +388,13 @@
 
         if (result.status === 'ok') {
           console.log("Datos frescos recibidos. Actualizando UI y caché.");
-          renderizarEnlaces(result.data);
-          localStorage.setItem('cachedEnlaces', JSON.stringify(result.data));
+          const freshDataStr = JSON.stringify(result.data);
+          if (freshDataStr !== cachedData) {
+            renderizarEnlaces(result.data);
+            localStorage.setItem('cachedEnlaces', freshDataStr);
+          } else {
+            console.log("Los datos frescos son idénticos a los de la caché. No se requiere re-renderizado.");
+          }
         } else {
           throw new Error(`Error en la API: ${result.message}`);
         }
@@ -408,6 +413,12 @@
      * @param {Array<Object>} datos - El array de enlaces y encabezados del backend.
      */
     function renderizarEnlaces(datos) {
+      // Guardar el estado de qué secciones estaban abiertas
+      const seccionesAbiertas = new Set();
+      document.querySelectorAll('.seccion-enlaces.abierto > .enlace-encabezado').forEach(el => {
+        seccionesAbiertas.add(el.textContent.trim());
+      });
+
       contenedorEnlaces.innerHTML = '';
 
       if (!datos || datos.length === 0) {
@@ -427,6 +438,13 @@
           const grupoTarjetasActual = document.createElement('div');
           grupoTarjetasActual.className = 'grupo-tarjetas';
 
+          // Si la sección estaba abierta antes de re-renderizar, restauramos su estado
+          if (seccionesAbiertas.has(item.titulo.trim())) {
+            seccionActual.classList.add('abierto');
+            encabezadoDiv.classList.add('abierto');
+            grupoTarjetasActual.classList.add('abierto');
+          }
+
           encabezadoDiv.onclick = () => {
             encabezadoDiv.classList.toggle('abierto');
             seccionActual.classList.toggle('abierto');
@@ -444,9 +462,6 @@
             grupoTarjetasActual.appendChild(card);
           } else {
             // Si un enlace no tiene encabezado, lo mostramos fuera de cualquier sección
-            // (Esto requiere crear un grupo "sin encabezado" o añadirlo directamente)
-            // Por simplicidad, asumimos que todos los enlaces están bajo un encabezado.
-            // Si no es el caso, se necesitaría una lógica para un grupo "default".
           }
         }
       });
