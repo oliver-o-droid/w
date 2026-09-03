@@ -556,6 +556,10 @@
           <p id="textoPersonasAdicionales" style="font-size: 0.85em; color: #666; display: none;"></p>
 
           <div id="contenedorPersonasAdicionales"></div>
+
+          <p id="textoAvisoWhatsApp" style="font-size: 0.8em; color: #64748b; margin-top: 10px; margin-bottom: 5px; line-height: 1.4;">
+            Al confirmar la reserva aceptas que nos pongamos en contacto contigo por medio de WhatsApp desde el teléfono de la Jai (624 01 02 21) y si fuera necesario también la persona que coordine la actividad/turno. Si no usas WhatsApp intentaremos contactar por otros medios.
+          </p>
         </div>
 
         <div class="modal-botones">
@@ -661,6 +665,7 @@
       document.getElementById('modalTelefono').placeholder = getTexto('Placeholder telefono', '+34 600-123-456');
       document.getElementById('etiquetaPersonasAdicionales').textContent = getTexto('Varios', '¿Quieres apuntar a otras personas?');
       document.getElementById('modalTituloTexto').textContent = getTexto('Modal reserva', 'Reservar turno:');
+      document.getElementById('textoAvisoWhatsApp').textContent = getTexto('Aviso whatsapp', 'Al confirmar la reserva aceptas que nos pongamos en contacto contigo por medio de WhatsApp desde el teléfono de la Jai (624 01 02 21) y si fuera necesario también la persona que coordine la actividad/turno. Si no usas WhatsApp intentaremos contactar por otros medios.');
       document.getElementById('btnConfirmarReserva').textContent = getTexto('Boton confirmar', 'Confirmar Reserva');
       document.getElementById('btnCancelarReserva').textContent = getTexto('Boton cancelar', 'Cancelar');
       document.getElementById('textoCargaTurnos').textContent = getTexto('Cargando turnos', 'Cargando turnos...');
