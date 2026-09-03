@@ -31,34 +31,38 @@
       overflow: hidden;
     }
 
-    /* Selector de idioma dividido */
+    /* Selector de idioma dividido adaptado a móvil (ancho completo y ajustado al borde superior) */
     .selector-idioma-container {
       display: flex;
-      justify-content: flex-end;
-      margin-bottom: 15px;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 20px;
     }
 
     .selector-idioma {
-      display: inline-flex;
-      background: rgba(0, 0, 0, 0.25);
-      padding: 3px;
-      border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.22);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
       backdrop-filter: blur(4px);
     }
 
     .btn-idioma {
+      flex: 1;
       background: transparent;
       color: rgba(255, 255, 255, 0.9);
       border: none;
-      padding: 6px 14px;
-      font-size: 0.85em;
+      padding: 10px 8px;
+      font-size: 0.95em;
       font-weight: 600;
-      border-radius: 20px;
+      border-radius: 9px;
       cursor: pointer;
       transition: all 0.25s ease;
       text-transform: none;
       letter-spacing: 0.3px;
+      text-align: center;
     }
 
     .btn-idioma:hover:not(.activo) {
@@ -78,7 +82,7 @@
     .encabezado {
       background: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
       color: white;
-      padding: 40px 20px;
+      padding: 12px 16px 35px 16px;
       text-align: center;
     }
 
@@ -494,8 +498,12 @@
 
     /* Responsivo */
     @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
       .encabezado {
-        padding: 30px 15px;
+        padding: 10px 12px 25px 12px;
       }
 
       .encabezado h1 {
