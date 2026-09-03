@@ -31,6 +31,50 @@
       overflow: hidden;
     }
 
+    /* Selector de idioma dividido */
+    .selector-idioma-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 15px;
+    }
+
+    .selector-idioma {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 3px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-idioma {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.9);
+      border: none;
+      padding: 6px 14px;
+      font-size: 0.85em;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-transform: none;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-idioma:hover:not(.activo) {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.15);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-idioma.activo {
+      background: #ffffff;
+      color: #0f766e;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transform: none;
+    }
+
     .encabezado {
       background: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
       color: white;
@@ -504,6 +548,12 @@
     <div class="contenedor-principal">
       <!-- Encabezado dinámico -->
       <div class="encabezado">
+        <div class="selector-idioma-container">
+          <div class="selector-idioma">
+            <button type="button" class="btn-idioma activo" id="btnIdiomaEs" onclick="cambiarIdioma('es')">Castellano</button>
+            <button type="button" class="btn-idioma" id="btnIdiomaEu" onclick="cambiarIdioma('eu')">Euskera</button>
+          </div>
+        </div>
         <h1 id="textoEncabezado">Cargando...</h1>
         <p id="textoSubencabezado"></p>
       </div>
@@ -581,7 +631,7 @@
       <div class="modal-contenido">
         <div class="modal-encabezado" id="modalInfoTitulo"></div>
         <div id="modalInfoContenido" style="margin-bottom: 20px;"></div>
-        <button class="btn-primary" style="width:100%;" onclick="cerrarModalInfo()">Cerrar</button>
+        <button class="btn-primary" id="btnCerrarInfo" style="width:100%;" onclick="cerrarModalInfo()">Cerrar</button>
       </div>
     </div>
   </div>
@@ -592,11 +642,53 @@
     const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyGSxGvS-l6vwGvRX2yB1nYKKw6HM0_Wc6lE1-CQ-FrSr2Q5HFGWd821i62yKpZOE7PhA/exec'; // EJ: https://script.google.com/macros/s/AKfycb.../exec
 
     // Variables globales
+    let idiomaActual = 'es';
     let datosUI = {};
     let turnosAgrupados = [];
     let turnoSeleccionado = null;
     let reservaEnProgreso = false;
     let redirectUrl = '';
+
+    function cambiarIdioma(nuevoIdioma) {
+      if (idiomaActual === nuevoIdioma) return;
+      idiomaActual = nuevoIdioma;
+      
+      const btnEs = document.getElementById('btnIdiomaEs');
+      const btnEu = document.getElementById('btnIdiomaEu');
+      if (btnEs && btnEu) {
+        if (idiomaActual === 'es') {
+          btnEs.classList.add('activo');
+          btnEu.classList.remove('activo');
+        } else {
+          btnEu.classList.add('activo');
+          btnEs.classList.remove('activo');
+        }
+      }
+
+      redirectUrl = getTexto('Redirect URL', '');
+      renderizarEncabezado();
+      if (turnosAgrupados && turnosAgrupados.length > 0) {
+        renderizarTurnos();
+      }
+
+      if (document.getElementById('modalReserva').classList.contains('activo') && turnoSeleccionado) {
+        document.getElementById('turnoSeleccionado').textContent = 
+          `${turnoSeleccionado.dia} - ${turnoSeleccionado.turno} (${turnoSeleccionado.horario})`;
+        const selector = document.getElementById('selectorPersonasAdicionales');
+        const valorActual = selector.value;
+        selector.innerHTML = `<option value="0">${getTexto('Select nadie', 'Nadie más')}</option>`;
+        for (let i = 1; i <= turnoSeleccionado.disponibles - 1; i++) {
+          const option = document.createElement('option');
+          option.value = i;
+          option.textContent = idiomaActual === 'eu' 
+            ? `${i} pertsona gehiago` 
+            : `${i} ${i === 1 ? 'persona' : 'personas'} más`;
+          selector.appendChild(option);
+        }
+        selector.value = valorActual;
+        actualizarCamposPersonasAdicionales();
+      }
+    }
 
     async function callApi(action, params = {}) {
       const urlParams = new URLSearchParams({ accion: action });
@@ -646,7 +738,32 @@
     }
 
     function getTexto(key, fallback) {
-      return datosUI[key] || fallback || '';
+      if (idiomaActual === 'eu') {
+        const keysToTry = [
+          key + '_EUS',
+          key + ':_EUS',
+          key.replace(/:$/, '') + '_EUS',
+          key.replace(/:$/, '') + ':_EUS'
+        ];
+        for (const k of keysToTry) {
+          if (datosUI[k] !== undefined && datosUI[k] !== null && datosUI[k] !== '') {
+            return datosUI[k];
+          }
+        }
+      }
+      
+      const keysFallback = [
+        key,
+        key.replace(/:$/, ''),
+        key + ':'
+      ];
+      for (const k of keysFallback) {
+        if (datosUI[k] !== undefined && datosUI[k] !== null && datosUI[k] !== '') {
+          return datosUI[k];
+        }
+      }
+
+      return fallback || '';
     }
 
     /**
@@ -757,11 +874,12 @@
 
       const disponibles = document.createElement('div');
       disponibles.className = 'turno-disponibles';
-      disponibles.textContent = `${turno.disponibles} puestos`;
+      const sufijoPuestos = idiomaActual === 'eu' ? 'toki' : (turno.disponibles === 1 ? 'puesto' : 'puestos');
+      disponibles.textContent = `${turno.disponibles} ${sufijoPuestos}`;
 
       const button = document.createElement('button');
       button.className = 'btn-apuntarse';
-      button.textContent = getTexto('Boton', 'Apuntarse');
+      button.textContent = getTexto('Boton', 'Solicitar turno');
       button.dataset.indice = turnosAgrupados.indexOf(turno);
       button.disabled = turno.disponibles === 0;
 
@@ -795,7 +913,9 @@
       for (let i = 1; i <= turno.disponibles - 1; i++) {
         const option = document.createElement('option');
         option.value = i;
-        option.textContent = `${i} ${i === 1 ? 'persona' : 'personas'} más`;
+        option.textContent = idiomaActual === 'eu' 
+          ? `${i} pertsona gehiago` 
+          : `${i} ${i === 1 ? 'persona' : 'personas'} más`;
         selector.appendChild(option);
       }
 
@@ -829,14 +949,18 @@
         const personaDiv = document.createElement('div');
         personaDiv.className = 'persona-adicional';
 
+        const tituloPersona = idiomaActual === 'eu'
+          ? `${i + 1}. pertsona gehigarria`
+          : `Persona adicional ${i + 1}`;
+
         personaDiv.innerHTML = `
-          <div class="persona-adicional-titulo">Persona adicional ${i + 1}</div>
+          <div class="persona-adicional-titulo">${tituloPersona}</div>
           <div class="grupo-campo">
-            <label>Nombre</label>
+            <label>${getTexto('Label nombre', 'Nombre *')}</label>
             <input type="text" class="nombre-adicional" placeholder="${getTexto('Placeholder nombre adicional', 'Nombre completo')}">
           </div>
           <div class="grupo-campo">
-            <label>Teléfono</label>
+            <label>${getTexto('Label telefono', 'Teléfono *')}</label>
             <input type="tel" class="telefono-adicional" placeholder="${getTexto('Placeholder telefono adicional', '+34 600-123-456')}">
           </div>
         `;
@@ -912,7 +1036,7 @@
         botonConfirmar.disabled = false;
         botonConfirmar.textContent = textoAnterior;
         reservaEnProgreso = false;
-        mostrarError('Error en la reserva: ' + error.message);
+        mostrarError(error.message || 'Error en la reserva');
       }
     }
 
@@ -930,22 +1054,25 @@
       const contenido = document.getElementById('contenidoConfirmacion');
 
       let html = '';
-      // La respuesta de la API tiene 'status' y 'message', y también 'exito' y 'mensaje' de la función guardarReserva
+      const tituloExito = idiomaActual === 'eu' ? '¡Bikain!' : '¡Éxito!';
+      const tituloError = idiomaActual === 'eu' ? 'Errorea' : 'Error';
+      const textoBoton = getTexto('Boton aceptar', 'Aceptar');
+
       if (respuesta.status === 'ok' && respuesta.exito) {
         html = `
           <div class="mensaje-confirmacion mensaje-exito">
-            <div class="mensaje-titulo">¡Éxito!</div>
+            <div class="mensaje-titulo">${tituloExito}</div>
             <div class="mensaje-texto">${respuesta.mensaje}</div>
           </div>
-          <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="cerrarConfirmacion()">OK</button>
+          <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="cerrarConfirmacion()">${textoBoton}</button>
         `;
       } else {
         html = `
           <div class="mensaje-confirmacion mensaje-error">
-            <div class="mensaje-titulo">Error</div>
-            <div class="mensaje-texto">${respuesta.message || respuesta.mensaje || 'Ocurrió un error desconocido.'}</div>
+            <div class="mensaje-titulo">${tituloError}</div>
+            <div class="mensaje-texto">${respuesta.message || respuesta.mensaje || (idiomaActual === 'eu' ? 'Errore ezezagun bat gertatu da.' : 'Ocurrió un error desconocido.')}</div>
           </div>
-          <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="cerrarConfirmacion()">OK</button>
+          <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="cerrarConfirmacion()">${textoBoton}</button>
         `;
       }
 
@@ -973,9 +1100,10 @@
      */
     function mostrarError(mensaje) {
       const contenedor = document.getElementById('contenedorTurnos');
+      const tituloError = idiomaActual === 'eu' ? 'Errorea' : 'Error';
       contenedor.innerHTML = `
         <div class="mensaje-confirmacion mensaje-error">
-          <div class="mensaje-titulo">Error</div>
+          <div class="mensaje-titulo">${tituloError}</div>
           <div class="mensaje-texto">${mensaje}</div>
         </div>
       `;
@@ -987,6 +1115,7 @@
     function mostrarInfoModal(titulo, contenido) {
       document.getElementById('modalInfoTitulo').textContent = titulo;
       document.getElementById('modalInfoContenido').textContent = contenido;
+      document.getElementById('btnCerrarInfo').textContent = getTexto('Boton cancelar', 'Cerrar');
       document.getElementById('modalInfo').classList.add('activo');
     }
 
